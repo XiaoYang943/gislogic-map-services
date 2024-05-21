@@ -29,7 +29,9 @@
         <geotools.version>29.0</geotools.version>
         <wContour.version>1.7.0</wContour.version>
         <hutool.version>5.8.16</hutool.version>
-        <jts.version>1.16.1</jts.version>
+        <jts.version>1.19.0</jts.version>
+        <protobuf.version>3.16.3</protobuf.version>
+        <org.apache.commons.version>2.2</org.apache.commons.version>
     </properties>
     <dependencies>
         <dependency>
@@ -321,6 +323,18 @@
                 <groupId>cn.hutool</groupId>
                 <artifactId>hutool-all</artifactId>
                 <version>${hutool.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.google.protobuf</groupId>
+                <artifactId>protobuf-java</artifactId>
+                <version>${protobuf.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-math</artifactId>
+                <version>${org.apache.commons.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
