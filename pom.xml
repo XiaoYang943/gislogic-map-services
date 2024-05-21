@@ -13,6 +13,7 @@
         <module>isosurface</module>
         <module>kmz</module>
         <module>geoserver</module>
+        <module>mvt</module>
     </modules>
     <properties>
         <java.version>11</java.version>
