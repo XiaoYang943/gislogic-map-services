@@ -33,21 +33,21 @@ import java.util.*;
  * @author liuyu
  * @date 2022/4/24
  */
-public final class MvtLayer {
+public final class MapboxVectorTileLayer {
 
-    public final List<MvtFeature> features = new LinkedList<>();
+    public final List<MapboxVectorTileFeature> features = new LinkedList<>();
 
     private final Map<String, Integer> keys = new LinkedHashMap<>();
     private final Map<Object, Integer> values = new LinkedHashMap<>();
 
-    private final MvtBuilder mvtBuilder;
+    private final MapboxVectorTileBuilder mapboxVectorTileBuilder;
 
 
     /**
-     * @param mvtBuilder mvtBuilder
+     * @param mapboxVectorTileBuilder mvtBuilder
      */
-    public MvtLayer(MvtBuilder mvtBuilder) {
-        this.mvtBuilder = mvtBuilder;
+    public MapboxVectorTileLayer(MapboxVectorTileBuilder mapboxVectorTileBuilder) {
+        this.mapboxVectorTileBuilder = mapboxVectorTileBuilder;
     }
 
 
@@ -115,7 +115,7 @@ public final class MvtLayer {
 
     private void addSampleGeometryFeature(ArrayList<Integer> tags, Geometry geometry) {
 
-        MvtFeature feature = new MvtFeature();
+        MapboxVectorTileFeature feature = new MapboxVectorTileFeature();
         feature.geometry = geometry;
 
         feature.tags = tags;
@@ -159,10 +159,10 @@ public final class MvtLayer {
 
     private Geometry clipGeometry(Geometry geometry) {
         try {
-            return mvtBuilder.tileClip.intersection(geometry);
+            return mapboxVectorTileBuilder.tileClip.intersection(geometry);
         } catch (TopologyException e) {
             geometry = geometry.buffer(0);
-            return mvtBuilder.tileClip.intersection(geometry);
+            return mapboxVectorTileBuilder.tileClip.intersection(geometry);
         }
     }
 

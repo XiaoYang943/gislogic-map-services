@@ -23,13 +23,7 @@ import org.locationtech.jts.geom.Geometry;
 
 import java.util.ArrayList;
 
-/**
- * mvt feature
- *
- * @author liuyu
- * @date 2022/4/24
- */
-public final class MvtFeature {
+public final class MapboxVectorTileFeature {
 
     public Geometry geometry;
     public ArrayList<Integer> tags;

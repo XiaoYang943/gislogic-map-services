@@ -64,5 +64,4 @@ public class Feature {
     public void setProperties(Map<String, Object> properties) {
         this.properties = properties;
     }
-
 }

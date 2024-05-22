@@ -38,18 +38,18 @@ import java.util.Map;
  * @author liuyu
  * @date 2022/4/24
  */
-public class MvtBuilder {
+public class MapboxVectorTileBuilder {
     protected final int extent;
 
     public final TileClip tileClip;
 
     private final MvtAndWGS84Convertor mvtCoordinateConvertor;
 
-    private final Map<String, MvtLayer> layers = new LinkedHashMap<>();
+    private final Map<String, MapboxVectorTileLayer> layers = new LinkedHashMap<>();
 
     private final Bbox bbox;
 
-    public MvtBuilder(byte zoom, int tileX, int tileY, GeometryFactory geometryFactory) {
+    public MapboxVectorTileBuilder(byte zoom, int tileX, int tileY, GeometryFactory geometryFactory) {
         this(zoom, tileX, tileY, 4096, 8, geometryFactory);
     }
 
@@ -67,7 +67,7 @@ public class MvtBuilder {
      * @param extent     a int with extent value. 4096 is a good value.
      * @param clipBuffer a int with clip buffer size for geometries. 8 is a good value.
      */
-    public MvtBuilder(byte zoom, int tileX, int tileY, int extent, int clipBuffer, GeometryFactory geometryFactory) {
+    public MapboxVectorTileBuilder(byte zoom, int tileX, int tileY, int extent, int clipBuffer, GeometryFactory geometryFactory) {
         this.extent = extent;
         bbox = createTileBbox(zoom, tileX, tileY, extent, clipBuffer);
         tileClip = new TileClip(bbox.xmin, bbox.ymin, bbox.xmax, bbox.ymax, geometryFactory);
@@ -81,8 +81,8 @@ public class MvtBuilder {
      * @param simplifyDistance 对geometry进行简化的长度,单位是瓦片像素，取值范围[0,extent+clipBuffer]，为0时表示不做简化
      * @return MvtLayer
      */
-    public MvtLayer createLayer(String layerName) {
-        MvtLayer layer = new MvtLayer(this);
+    public MapboxVectorTileLayer createLayer(String layerName) {
+        MapboxVectorTileLayer layer = new MapboxVectorTileLayer(this);
         layers.put(layerName, layer);
         return layer;
     }
@@ -94,8 +94,8 @@ public class MvtBuilder {
      * @param layerName 图层名
      * @return 若已有同名图层则返回现有图层，否则新建一个
      */
-    public MvtLayer getOrCreateLayer(String layerName) {
-        MvtLayer layer = layers.get(layerName);
+    public MapboxVectorTileLayer getOrCreateLayer(String layerName) {
+        MapboxVectorTileLayer layer = layers.get(layerName);
         if (layer != null) {
             return layer;
         }
@@ -184,7 +184,7 @@ public class MvtBuilder {
             }
 
             tileLayer.setExtent(extent);
-            for (MvtFeature feature : layer.features) {
+            for (MapboxVectorTileFeature feature : layer.features) {
 
                 Geometry geometry = feature.geometry;
 

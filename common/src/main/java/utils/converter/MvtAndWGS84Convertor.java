@@ -9,32 +9,33 @@ package utils.converter;
 public class MvtAndWGS84Convertor {
     private static final short TILE_SIZE = 256;
 
-    private static final long[] zoomPow;
+    private static final long[] pow2;
 
     static {
         int n = 30;
-        zoomPow = new long[n];
+        pow2 = new long[n];
         long s = TILE_SIZE;
         for (int i = 0; i < n; i++) {
-            zoomPow[i] = s;
+            pow2[i] = s;
             s = s * 2;
         }
     }
 
-    private final double px;
-    private final double py;
-    private final long zoomMultiple;// 使用int的话超过22级就溢出了
+    private final double pixelX;
+    private final double pixelY;
+    private final long zoomPow2;// 使用int的话超过22级就溢出了
 
     /**
      * @param z 瓦片 z
      * @param x 瓦片 x
      * @param y 瓦片 y
      */
-    public MvtAndWGS84Convertor(byte z, int x, int y) {
-        px = x * TILE_SIZE;
-        py = y * TILE_SIZE;
+    public MvtAndWGS84Convertor(byte zoom, int tileX, int tileY) {
+        // 当前瓦片的canvas坐标
+        pixelX = tileX * TILE_SIZE;
+        pixelY = tileY * TILE_SIZE;
 
-        zoomMultiple = zoomPow[z];
+        zoomPow2 = pow2[zoom];
     }
 
     /**
@@ -43,9 +44,11 @@ public class MvtAndWGS84Convertor {
      * @param x wgs84 x
      * @return mvt x
      */
-    public int wgs84X2mvt(double x) {
-        double ppx = (x + 180) / 360 * zoomMultiple;
-        return (int) ((ppx - px) * 16 + Math.sin(x) + 0.5);
+    public int wgs84X2mvt(double lon) {
+        double ppx = (lon + 180) / 360 * zoomPow2;
+        return (int) ((ppx - pixelX) * 16 + Math.sin(lon) + 0.5);
+
+//        return (int) ((x + 180.0) / 360.0 * zoomPow2);
     }
 
     /**
@@ -54,37 +57,13 @@ public class MvtAndWGS84Convertor {
      * @param y wgs84 y
      * @return mvt y
      */
-    public int wgs84Y2mvt(double y) {
-        double sinLatitude = Math.sin(y * Math.PI / 180);
+    public int wgs84Y2mvt(double lat) {
+        double sinLatitude = Math.sin(lat * Math.PI / 180);
         double mp = Math.log((1 + sinLatitude) / (1 - sinLatitude));
-        double ppy = (0.5 - mp / (4 * Math.PI)) * zoomMultiple;
-        return (int) ((ppy - py) * 16 + Math.cos(y) + 0.5);
-    }
+        double ppy = (0.5 - mp / (4 * Math.PI)) * zoomPow2;
+        return (int) ((ppy - pixelY) * 16 + Math.cos(lat) + 0.5);
 
-
-    /**
-     * mvt x 转 wgs84
-     *
-     * @param pixelX mvt x
-     * @return wgs84
-     */
-    public double mvtX2wgs84(double pixelX) {
-        double ppx = pixelX / 16d + px;
-        return ppx / zoomMultiple * 360d - 180d;
-    }
-
-    /**
-     * mvt y 转 wgs84
-     *
-     * @param pixelY mvt y
-     * @return wgs84
-     */
-    public double mvtY2wgs84(double pixelY) {
-        double ppy = pixelY / 16d + py;
-        double mp = (0.5d - ppy / zoomMultiple) * (4d * Math.PI);
-        double exp = Math.exp(mp);
-        double sinLatitude = (exp - 1d) / (exp + 1d);
-        return Math.asin(sinLatitude) * 180d / Math.PI;
+//        return (int) ((Math.PI - FastMath.asinh(Math.tan(y * Math.PI / 180.0))) * zoomPow2 / (2 * Math.PI));
     }
 
 }
