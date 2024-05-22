@@ -26,15 +26,10 @@ import java.util.List;
 import static utils.converter.SimpleFeatureCollectionConverter.convertGeoJSON2SimpleFeatureCollection;
 
 
-@SpringBootApplication
 @RestController()
 @RequestMapping("/tile")
 @CrossOrigin
 public class MapboxVectorTileController {
-    public static void main(String[] args) {
-        SpringApplication.run(MapboxVectorTileController.class, args);
-    }
-
     private static final GeometryFactory geometryFactory = new GeometryFactory();   // 几何工厂
 
     private static final String vtContentType = "application/octet-stream"; // 二进制数据流的MIME类型
@@ -44,7 +39,7 @@ public class MapboxVectorTileController {
         MvtBuilder mvtBuilder = new MvtBuilder(z, x, y, geometryFactory);   // 构造 MvtBuilder
         MvtLayer layer = mvtBuilder.getOrCreateLayer("省区域");    // 创建图层
 
-        SimpleFeatureCollection featureCollection = convertGeoJSON2SimpleFeatureCollection("C:\\Users\\13522\\IdeaProjects\\map-services\\mvt\\src\\main\\resources\\china.json");
+        SimpleFeatureCollection featureCollection = convertGeoJSON2SimpleFeatureCollection("C:\\Users\\heyiyang\\IdeaProjects\\gislogic-map-services\\mvt\\src\\main\\resources\\china.json");
         SimpleFeatureIterator iterator = featureCollection.features();
         while (iterator.hasNext()) {    // 遍历源数据的每一个 Feature
             SimpleFeature simpleFeature = iterator.next();
