@@ -1,23 +1,3 @@
-/*****************************************************************
- *  Copyright (c) 2022- "giscat by 刘雨 (https://github.com/codingmiao/giscat)"
- *  This document is adapted from https://github.com/ElectronicChartCentre/java-vector-tile
- *  Licensed to the Apache Software Foundation (ASF) under one
- *  or more contributor license agreements.  See the NOTICE file
- *  distributed with this work for additional information
- *  regarding copyright ownership.  The ASF licenses this file
- *  to you under the Apache License, Version 2.0 (the
- *  "License"); you may not use this file except in compliance
- *  with the License.  You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
- ****************************************************************/
 package vectortile.core;
 
 import org.locationtech.jts.algorithm.Orientation;
@@ -26,6 +6,7 @@ import utils.converter.MvtAndWGS84Convertor;
 import utils.converter.Tile2Wgs84;
 import utils.geom.Bbox;
 import vector_tile.VectorTile;
+import vectortile.pojo.MapboxVectorTileFeature;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -48,9 +29,10 @@ public class MapboxVectorTileBuilder {
     private final Map<String, MapboxVectorTileLayer> layers = new LinkedHashMap<>();
 
     private final Bbox bbox;
+    private static final GeometryFactory geometryFactory = new GeometryFactory();   // 几何工厂
 
-    public MapboxVectorTileBuilder(byte zoom, int tileX, int tileY, GeometryFactory geometryFactory) {
-        this(zoom, tileX, tileY, 4096, 8, geometryFactory);
+    public MapboxVectorTileBuilder(byte zoom, int tileX, int tileY) {
+        this(zoom, tileX, tileY, 4096, 8);
     }
 
 
@@ -64,10 +46,10 @@ public class MapboxVectorTileBuilder {
      * tile for geometries. 0 means that the clipping is done at the tile border. 8
      * is a good default.
      *
-     * @param extent     a int with extent value. 4096 is a good value.
-     * @param clipBuffer a int with clip buffer size for geometries. 8 is a good value.
+     * @param extent     瓦片范围(单位：像素、默认：4096)
+     * @param clipBuffer 裁剪几何的缓冲区大小(单位：像素、默认：8)
      */
-    public MapboxVectorTileBuilder(byte zoom, int tileX, int tileY, int extent, int clipBuffer, GeometryFactory geometryFactory) {
+    public MapboxVectorTileBuilder(byte zoom, int tileX, int tileY, int extent, int clipBuffer) {
         this.extent = extent;
         bbox = createTileBbox(zoom, tileX, tileY, extent, clipBuffer);
         tileClip = new TileClip(bbox.xmin, bbox.ymin, bbox.xmax, bbox.ymax, geometryFactory);
@@ -75,11 +57,7 @@ public class MapboxVectorTileBuilder {
     }
 
     /**
-     * 新建一个图层，按simplifyDistance的值简化geometry
-     *
-     * @param layerName        图层名 本方法没有对图层名进行唯一校验，故若图层已存在，则原图层会被覆盖
-     * @param simplifyDistance 对geometry进行简化的长度,单位是瓦片像素，取值范围[0,extent+clipBuffer]，为0时表示不做简化
-     * @return MvtLayer
+     * 新建一个图层
      */
     public MapboxVectorTileLayer createLayer(String layerName) {
         MapboxVectorTileLayer layer = new MapboxVectorTileLayer(this);
@@ -87,41 +65,7 @@ public class MapboxVectorTileBuilder {
         return layer;
     }
 
-
-    /**
-     * 新建或获取一个图层，不对geometry进行简化
-     *
-     * @param layerName 图层名
-     * @return 若已有同名图层则返回现有图层，否则新建一个
-     */
-    public MapboxVectorTileLayer getOrCreateLayer(String layerName) {
-        MapboxVectorTileLayer layer = layers.get(layerName);
-        if (layer != null) {
-            return layer;
-        }
-        return createLayer(layerName);
-    }
-
-
-    /**
-     * 该方法貌似有点问题
-     * 瓦片都是正方形，确定瓦片的位置只需要两个对角坐标，即左上角和右下角
-     *
-     * @param zoom
-     * @param tileX
-     * @param tileY
-     * @param extent
-     * @param clipBuffer
-     * @return
-     */
     private static Bbox createTileBbox(byte zoom, int tileX, int tileY, int extent, int clipBuffer) {
-        //瓦片左上角坐标
-//        double x0 = Tile2Wgs84.tileX2lon(tileX, zoom);
-//        double y0 = Tile2Wgs84.tileY2lat(tileY, zoom);
-//        //瓦片右下角坐标
-//        double x1 = Tile2Wgs84.tileX2lon(tileX + 1, zoom);
-//        double y1 = Tile2Wgs84.tileY2lat(tileY + 1, zoom);
-
         //瓦片左上角坐标
         double x0 = Tile2Wgs84.tileX2lon1(tileX, zoom, 0);
         double y0 = Tile2Wgs84.tileY2lat1(tileY, zoom, 0);
@@ -134,7 +78,7 @@ public class MapboxVectorTileBuilder {
         x0 = x0 - clipBufferX;
         x1 = x1 + clipBufferX;
 
-        double dy = (y0 - y1) / extent;
+        double dy = (y0 - y1) / extent; // 每像素多少纬度
         double clipBufferY = dy * clipBuffer;
         y0 = y0 + clipBufferY;
         y1 = y1 - clipBufferY;
@@ -148,8 +92,6 @@ public class MapboxVectorTileBuilder {
 
     /**
      * 转为 bytes
-     *
-     * @return bytes
      */
     public byte[] toBytes() {
 

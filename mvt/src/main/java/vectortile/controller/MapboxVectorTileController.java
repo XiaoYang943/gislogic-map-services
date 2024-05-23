@@ -3,8 +3,6 @@ package vectortile.controller;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -13,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import vectortile.core.MapboxVectorTileBuilder;
 import vectortile.core.MapboxVectorTileLayer;
-import vectortile.pojo.Feature;
+import vectortile.pojo.SimpleFeature;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -28,19 +26,19 @@ import static utils.converter.SimpleFeatureCollectionConverter.convertGeoJSON2Si
 @RequestMapping("/tile")
 @CrossOrigin
 public class MapboxVectorTileController {
-    private static final GeometryFactory geometryFactory = new GeometryFactory();   // 几何工厂
+
 
     private static final String vtContentType = "application/octet-stream"; // 二进制数据流的MIME类型
 
     @RequestMapping("/{z}/{x}/{y}")
     public void getMapboxVectorTile(@PathVariable byte z, @PathVariable int x, @PathVariable int y, HttpServletResponse response) {
-        MapboxVectorTileBuilder mapboxVectorTileBuilder = new MapboxVectorTileBuilder(z, x, y, geometryFactory);   // 构造 MvtBuilder
-        MapboxVectorTileLayer layer = mapboxVectorTileBuilder.getOrCreateLayer("省区域");    // 创建图层
+        MapboxVectorTileBuilder mapboxVectorTileBuilder = new MapboxVectorTileBuilder(z, x, y);   // 构造 MapboxVectorTileBuilder
+        MapboxVectorTileLayer layer = mapboxVectorTileBuilder.createLayer("省区域");    // 创建图层
 
         SimpleFeatureCollection featureCollection = convertGeoJSON2SimpleFeatureCollection("C:\\Users\\heyiyang\\IdeaProjects\\gislogic-map-services\\mvt\\src\\main\\resources\\china.json");
         SimpleFeatureIterator iterator = featureCollection.features();
         while (iterator.hasNext()) {    // 遍历源数据的每一个 Feature
-            SimpleFeature simpleFeature = iterator.next();
+            org.opengis.feature.simple.SimpleFeature simpleFeature = iterator.next();
             List<Object> attributes = simpleFeature.getAttributes();
             SimpleFeatureType featureType = simpleFeature.getFeatureType();
             List<AttributeDescriptor> attributeDescriptors = featureType.getAttributeDescriptors();
@@ -53,7 +51,7 @@ public class MapboxVectorTileController {
 
             // 如果当前 Feature 的 geometery 和当前zxy的瓦片相交
             if (mapboxVectorTileBuilder.getBbox().envIntersects(geometry)) {
-                layer.addFeature(new Feature(geometry, map), 0.05, z, (byte) 5);   // 给图层添加当前 Feature
+                layer.addFeature(new SimpleFeature(geometry, map), 0.05, z, (byte) 5);   // 给图层添加当前 Feature
             }
         }
         iterator.close();

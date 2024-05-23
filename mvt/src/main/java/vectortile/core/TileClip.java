@@ -356,13 +356,6 @@ public class TileClip {
 
     /**
      * 已知直线上两点及y，求x
-     *
-     * @param x1
-     * @param x2
-     * @param y1
-     * @param y2
-     * @param y
-     * @return
      */
     private double getLineX(double x1, double y1, double x2, double y2, double y) {
         if (x1 == x2) {
@@ -376,13 +369,7 @@ public class TileClip {
     /**
      * 已知直线上两点及x，求y
      *
-     * @param x1
-     * @param x2
-     * @param y1
-     * @param y2
-     * @param x
      * @param verticalY 当线竖直时y的取值
-     * @return
      */
     private double getLineY(double x1, double y1, double x2, double y2, double x, double verticalY) {
         if (x1 == x2) {
@@ -395,8 +382,6 @@ public class TileClip {
 
     /**
      * 判断bbox是否与范围相交
-     *
-     * @return
      */
     private boolean intersects(Coordinate[] coords) {
         double x, y;

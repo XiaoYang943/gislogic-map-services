@@ -2,9 +2,6 @@ package utils.converter;
 
 /**
  * 矢量瓦片的坐标系与wgs84坐标系互转
- *
- * @author liuyu
- * @date 2022/4/20
  */
 public class MvtAndWGS84Convertor {
     private static final short TILE_SIZE = 256;

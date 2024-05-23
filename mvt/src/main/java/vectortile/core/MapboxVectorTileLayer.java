@@ -1,38 +1,15 @@
-/*****************************************************************
- *  Copyright (c) 2022- "giscat by 刘雨 (https://github.com/codingmiao/giscat)"
- *  Licensed to the Apache Software Foundation (ASF) under one
- *  or more contributor license agreements.  See the NOTICE file
- *  distributed with this work for additional information
- *  regarding copyright ownership.  The ASF licenses this file
- *  to you under the Apache License, Version 2.0 (the
- *  "License"); you may not use this file except in compliance
- *  with the License.  You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
- ****************************************************************/
 package vectortile.core;
 
 
 import org.locationtech.jts.geom.*;
 import org.locationtech.jts.simplify.DouglasPeuckerSimplifier;
 import org.locationtech.jts.simplify.TopologyPreservingSimplifier;
-import vectortile.pojo.Feature;
+import vectortile.pojo.MapboxVectorTileFeature;
+import vectortile.pojo.SimpleFeature;
 
 import java.util.*;
 
-/**
- * mvt layer
- *
- * @author liuyu
- * @date 2022/4/24
- */
+
 public final class MapboxVectorTileLayer {
 
     public final List<MapboxVectorTileFeature> features = new LinkedList<>();
@@ -51,8 +28,8 @@ public final class MapboxVectorTileLayer {
     }
 
 
-    private Feature simplifyGeometry(Feature feature, Double simplificationDistanceTolerance, byte curZ, byte minZ) {
-        Geometry geometry = feature.getGeometry();
+    private SimpleFeature simplifyGeometry(SimpleFeature simpleFeature, Double simplificationDistanceTolerance, byte curZ, byte minZ) {
+        Geometry geometry = simpleFeature.getGeometry();
         /**
          * Geometry类型：
          * "LineString"、"MultiLineString" DouglasPeuckerSimplifier简化
@@ -75,16 +52,16 @@ public final class MapboxVectorTileLayer {
                 } else {
                     geometry = TopologyPreservingSimplifier.simplify(geometry, simplificationDistanceTolerance);
                 }
-                feature.setGeometry(geometry);
+                simpleFeature.setGeometry(geometry);
             }
         }
-        return feature;
+        return simpleFeature;
     }
 
-    public void addFeature(Feature feature, Double simplificationDistanceTolerance, byte curZ, byte minZ) {
+    public void addFeature(SimpleFeature simpleFeature, Double simplificationDistanceTolerance, byte curZ, byte minZ) {
         // 先简化再裁剪比先裁剪再简化效率要高
-        feature = simplifyGeometry(feature, simplificationDistanceTolerance, curZ, minZ);
-        addCipedGeometryAndAttributes(feature.getProperties(), clipGeometry(feature.getGeometry()));
+        simpleFeature = simplifyGeometry(simpleFeature, simplificationDistanceTolerance, curZ, minZ);
+        addCipedGeometryAndAttributes(simpleFeature.getProperties(), clipGeometry(simpleFeature.getGeometry()));
     }
 
     public void addCipedGeometryAndAttributes(Map<String, ?> attributes, Geometry clipedGeometry) {

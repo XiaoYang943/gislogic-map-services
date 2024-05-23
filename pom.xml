@@ -213,7 +213,7 @@
             </dependency>
             <dependency>
                 <groupId>org.geotools</groupId>
-                <artifactId>gt-process-feature</artifactId>
+                <artifactId>gt-process-simpleFeature</artifactId>
                 <version>${geotools.version}</version>
             </dependency>
             <dependency>
