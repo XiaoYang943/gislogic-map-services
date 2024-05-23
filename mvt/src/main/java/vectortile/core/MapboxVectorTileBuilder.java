@@ -59,10 +59,21 @@ public class MapboxVectorTileBuilder {
     /**
      * 新建一个图层
      */
-    public MapboxVectorTileLayer createLayer(String layerName) {
+    private MapboxVectorTileLayer createLayer(String layerName) {
         MapboxVectorTileLayer layer = new MapboxVectorTileLayer(this);
         layers.put(layerName, layer);
         return layer;
+    }
+
+    /**
+     * 新建或获取一个图层
+     */
+    public MapboxVectorTileLayer getOrCreateLayer(String layerName) {
+        MapboxVectorTileLayer layer = layers.get(layerName);
+        if (layer != null) {
+            return layer;
+        }
+        return createLayer(layerName);
     }
 
     private static Bbox createTileBbox(byte zoom, int tileX, int tileY, int extent, int clipBuffer) {
@@ -126,14 +137,14 @@ public class MapboxVectorTileBuilder {
             }
 
             tileLayer.setExtent(extent);
-            for (MapboxVectorTileFeature feature : layer.features) {
+            for (MapboxVectorTileFeature mapboxVectorTileFeature : layer.mapboxVectorTileFeatureList) {
 
-                Geometry geometry = feature.geometry;
+                Geometry geometry = mapboxVectorTileFeature.geometry;
 
                 VectorTile.Tile.Feature.Builder featureBuilder = VectorTile.Tile.Feature.newBuilder();
 
-                if (null != feature.tags) {
-                    featureBuilder.addAllTags(feature.tags);
+                if (null != mapboxVectorTileFeature.tags) {
+                    featureBuilder.addAllTags(mapboxVectorTileFeature.tags);
                 }
 
                 VectorTile.Tile.GeomType geomType = toGeomType(geometry);

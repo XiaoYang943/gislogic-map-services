@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import vectortile.core.MapboxVectorTileBuilder;
 import vectortile.core.MapboxVectorTileLayer;
-import vectortile.pojo.SimpleFeature;
+import vectortile.pojo.CustomFeature;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -33,8 +33,7 @@ public class MapboxVectorTileController {
     @RequestMapping("/{z}/{x}/{y}")
     public void getMapboxVectorTile(@PathVariable byte z, @PathVariable int x, @PathVariable int y, HttpServletResponse response) {
         MapboxVectorTileBuilder mapboxVectorTileBuilder = new MapboxVectorTileBuilder(z, x, y);   // 构造 MapboxVectorTileBuilder
-        MapboxVectorTileLayer layer = mapboxVectorTileBuilder.createLayer("省区域");    // 创建图层
-
+        MapboxVectorTileLayer layer = mapboxVectorTileBuilder.getOrCreateLayer("省区域");    // 创建图层
         SimpleFeatureCollection featureCollection = convertGeoJSON2SimpleFeatureCollection("C:\\Users\\heyiyang\\IdeaProjects\\gislogic-map-services\\mvt\\src\\main\\resources\\china.json");
         SimpleFeatureIterator iterator = featureCollection.features();
         while (iterator.hasNext()) {    // 遍历源数据的每一个 Feature
@@ -51,7 +50,7 @@ public class MapboxVectorTileController {
 
             // 如果当前 Feature 的 geometery 和当前zxy的瓦片相交
             if (mapboxVectorTileBuilder.getBbox().envIntersects(geometry)) {
-                layer.addFeature(new SimpleFeature(geometry, map), 0.05, z, (byte) 5);   // 给图层添加当前 Feature
+                layer.addFeature(new CustomFeature(geometry, map), 0.05, z, (byte) 5);   // 给图层添加当前 Feature
             }
         }
         iterator.close();

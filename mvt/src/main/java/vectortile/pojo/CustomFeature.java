@@ -5,13 +5,13 @@ import org.locationtech.jts.geom.Geometry;
 import java.util.Map;
 
 /**
- * 要素 包含properties和geometry
+ * 自定义要素，包含properties和geometry
  */
-public class SimpleFeature {
+public class CustomFeature {
     private Geometry geometry;
     private Map<String, Object> properties;
 
-    public SimpleFeature(Geometry geometry, Map<String, Object> properties) {
+    public CustomFeature(Geometry geometry, Map<String, Object> properties) {
         this.geometry = geometry;
         this.properties = properties;
     }

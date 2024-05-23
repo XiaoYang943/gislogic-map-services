@@ -4,32 +4,51 @@ package vectortile.core;
 import org.locationtech.jts.geom.*;
 import org.locationtech.jts.simplify.DouglasPeuckerSimplifier;
 import org.locationtech.jts.simplify.TopologyPreservingSimplifier;
+import vectortile.pojo.CustomFeature;
 import vectortile.pojo.MapboxVectorTileFeature;
-import vectortile.pojo.SimpleFeature;
 
 import java.util.*;
 
 
 public final class MapboxVectorTileLayer {
 
-    public final List<MapboxVectorTileFeature> features = new LinkedList<>();
+    public final List<MapboxVectorTileFeature> mapboxVectorTileFeatureList = new LinkedList<>();
 
-    private final Map<String, Integer> keys = new LinkedHashMap<>();
-    private final Map<Object, Integer> values = new LinkedHashMap<>();
+    private final Map<String, Integer> attributeNameLinkedHashMap = new LinkedHashMap<>();   // 存储字符串键和它们对应的整数值，键的插入顺序将被保留
+    private final Map<Object, Integer> attributeValueLinkedHashMap = new LinkedHashMap<>();
 
     private final MapboxVectorTileBuilder mapboxVectorTileBuilder;
 
 
-    /**
-     * @param mapboxVectorTileBuilder mvtBuilder
-     */
     public MapboxVectorTileLayer(MapboxVectorTileBuilder mapboxVectorTileBuilder) {
         this.mapboxVectorTileBuilder = mapboxVectorTileBuilder;
     }
 
+    /**
+     * 给图层添加Feature
+     *
+     * @param customFeature                   自定义要素，包含properties和geometry
+     * @param simplificationDistanceTolerance DP简化阈值
+     * @param curZ                            当前zoom
+     * @param minZ                            最小zoom
+     */
+    public void addFeature(CustomFeature customFeature, Double simplificationDistanceTolerance, byte curZ, byte minZ) {
+        // 先简化再裁剪比先裁剪再简化效率要高
+        customFeature = simplifyGeometry(customFeature, simplificationDistanceTolerance, curZ, minZ);
+        addCipedGeometryAndAttributes(customFeature.getProperties(), clipGeometry(customFeature.getGeometry()));
+    }
 
-    private SimpleFeature simplifyGeometry(SimpleFeature simpleFeature, Double simplificationDistanceTolerance, byte curZ, byte minZ) {
-        Geometry geometry = simpleFeature.getGeometry();
+    /**
+     * 简化几何
+     *
+     * @param customFeature                   自定义要素，包含properties和geometry
+     * @param simplificationDistanceTolerance DP简化阈值
+     * @param curZ                            当前zoom
+     * @param minZ                            最小zoom
+     * @return
+     */
+    private CustomFeature simplifyGeometry(CustomFeature customFeature, Double simplificationDistanceTolerance, byte curZ, byte minZ) {
+        Geometry geometry = customFeature.getGeometry();
         /**
          * Geometry类型：
          * "LineString"、"MultiLineString" DouglasPeuckerSimplifier简化
@@ -52,28 +71,26 @@ public final class MapboxVectorTileLayer {
                 } else {
                     geometry = TopologyPreservingSimplifier.simplify(geometry, simplificationDistanceTolerance);
                 }
-                simpleFeature.setGeometry(geometry);
+                customFeature.setGeometry(geometry);
             }
         }
-        return simpleFeature;
+        return customFeature;
     }
 
-    public void addFeature(SimpleFeature simpleFeature, Double simplificationDistanceTolerance, byte curZ, byte minZ) {
-        // 先简化再裁剪比先裁剪再简化效率要高
-        simpleFeature = simplifyGeometry(simpleFeature, simplificationDistanceTolerance, curZ, minZ);
-        addCipedGeometryAndAttributes(simpleFeature.getProperties(), clipGeometry(simpleFeature.getGeometry()));
-    }
 
-    public void addCipedGeometryAndAttributes(Map<String, ?> attributes, Geometry clipedGeometry) {
+    private void addCipedGeometryAndAttributes(Map<String, ?> attributes, Geometry clipedGeometry) {
         if (null == clipedGeometry || clipedGeometry.isEmpty()) {
             return;//裁剪完没有交集则直接return
         }
         // 转换并添加feature
-        ArrayList<Integer> tags = tags(attributes);
+        ArrayList<Integer> tags = attributeMap2TagsList(attributes);
         List<Geometry> resolveGeometries = new LinkedList<>();
         resolveGeometryCollection(clipedGeometry, resolveGeometries);
         for (Geometry resolveGeometry : resolveGeometries) {
-            addSampleGeometryFeature(tags, resolveGeometry);
+            MapboxVectorTileFeature feature = new MapboxVectorTileFeature();
+            feature.geometry = resolveGeometry;
+            feature.tags = tags;
+            mapboxVectorTileFeatureList.add(feature);
         }
     }
 
@@ -90,47 +107,51 @@ public final class MapboxVectorTileLayer {
     }
 
 
-    private void addSampleGeometryFeature(ArrayList<Integer> tags, Geometry geometry) {
-
-        MapboxVectorTileFeature feature = new MapboxVectorTileFeature();
-        feature.geometry = geometry;
-
-        feature.tags = tags;
-
-        features.add(feature);
-    }
-
-    //将attributes转为tags以便加入到feature
-    private ArrayList<Integer> tags(Map<String, ?> attributes) {
-        if (null == attributes) {
+    /**
+     * attributeMap转为TagsList
+     */
+    private ArrayList<Integer> attributeMap2TagsList(Map<String, ?> attributes) {
+        if (null == attributes) {   // 该Feature没有属性
             return null;
         }
-        ArrayList<Integer> tags = new ArrayList<>(attributes.size() * 2);
-        for (Map.Entry<String, ?> e : attributes.entrySet()) {
+
+        Integer maxSize = attributes.size() * 2;    // tags最大容量
+        ArrayList<Integer> tagsList = new ArrayList<>(maxSize);
+
+        for (Map.Entry<String, ?> attribute : attributes.entrySet()) {
             // skip attribute without value
-            if (e.getValue() == null) {
+            Object attributeValue = attribute.getValue();
+            if (attributeValue == null) {
                 continue;
             }
-            tags.add(key(e.getKey()));
-            tags.add(value(e.getValue()));
+            String attributeName = attribute.getKey();
+            tagsList.add(getIntegerKeyOfTheMappingForAttributeName(attributeName));
+            tagsList.add(getIntegerKeyOfTheMappingForAttributeValue(attributeValue));
         }
-        return tags;
+        return tagsList;
     }
 
-    private Integer key(String key) {
-        return keys.computeIfAbsent(key, k -> keys.size());
+
+    /**
+     * 获取属性名映射的整数key，如果不存在，返回当前属性名链表的大小
+     */
+    private Integer getIntegerKeyOfTheMappingForAttributeName(String attributeName) {
+        return attributeNameLinkedHashMap.computeIfAbsent(attributeName, k -> attributeNameLinkedHashMap.size());
     }
 
     public Set<String> keys() {
-        return keys.keySet();
+        return attributeNameLinkedHashMap.keySet();
     }
 
-    private Integer value(Object value) {
-        return values.computeIfAbsent(value, k -> values.size());
+    /**
+     * 获取属性值映射的整数key，如果不存在，返回当前属性值链表的大小
+     */
+    private Integer getIntegerKeyOfTheMappingForAttributeValue(Object attributeValue) {
+        return attributeValueLinkedHashMap.computeIfAbsent(attributeValue, k -> attributeValueLinkedHashMap.size());
     }
 
     public Set<Object> values() {
-        return values.keySet();
+        return attributeValueLinkedHashMap.keySet();
     }
 
 
