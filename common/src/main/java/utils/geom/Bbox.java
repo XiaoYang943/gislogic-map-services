@@ -1,13 +1,9 @@
 package utils.geom;
 
-import org.locationtech.jts.geom.*;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.LineString;
 
-/**
- * @program: java-vector-tile
- * @description:
- * @author: hyy
- * @create: 2024-05-17
- **/
 public class Bbox {
     public final double xmin, ymin, xmax, ymax;
 
@@ -63,23 +59,16 @@ public class Bbox {
     }
 
     /**
-     * 判断bbox是否与geometry的bbox
+     * 判断两个bbox是否相交
      *
-     * @param geometry geometry
      * @return 是否相交
      */
-    public boolean envIntersects(Geometry geometry) {
-        Bbox bbox = new Bbox(geometry);
-        return intersects(bbox);
+    public boolean envIntersects(Bbox bbox) {
+        return intersects(bbox.xmin, bbox.ymin, bbox.xmax, bbox.ymax);
     }
 
-    /**
-     * 判断bbox是否与另一个bbox相交
-     *
-     * @param bbox bbox
-     * @return 是否相交
-     */
-    public boolean intersects(Bbox bbox) {
+    public boolean envIntersects(Geometry geometry) {
+        Bbox bbox = new Bbox(geometry);
         return intersects(bbox.xmin, bbox.ymin, bbox.xmax, bbox.ymax);
     }
 
@@ -103,28 +92,6 @@ public class Bbox {
             return false;
         }
         return !(this.ymax < ymin);
-    }
-
-    /**
-     * 判断bbox是否与点相交
-     *
-     * @param x x
-     * @param y y
-     * @return 是否相交
-     */
-    public boolean intersects(double x, double y) {
-        return x >= xmin && x <= xmax && y >= ymin && y <= ymax;
-    }
-
-
-    public Polygon toPolygon(GeometryFactory gf) {
-        return gf.createPolygon(new Coordinate[]{
-                new Coordinate(xmin, ymin),
-                new Coordinate(xmax, ymin),
-                new Coordinate(xmax, ymax),
-                new Coordinate(xmin, ymax),
-                new Coordinate(xmin, ymin)
-        });
     }
 }
 

@@ -40,7 +40,7 @@ public class TileClip {
     }
 
     /**
-     * 获取瓦片和图形的交集
+     * 获取瓦片和geometry的交集
      *
      * @param geometry geometry
      * @return 交集
@@ -76,16 +76,14 @@ public class TileClip {
         return clipGeometry.intersection(geometry);
     }
 
-    /////////////////////////点的处理
+
     private Point intersectionPoint(Point point) {
-        if (inTile(point.getX(), point.getY())) {
+        if (isPointInsideTile(point.getX(), point.getY())) {
             return point;
         }
         return null;
     }
-    /////////////////////////end点的处理
 
-    /////////////////////////线的处理
     enum Indexed {
         start, middle, end
     }
@@ -111,7 +109,7 @@ public class TileClip {
         IntersectionLineStringCtx ctx = new IntersectionLineStringCtx();
         Coordinate coord = coords[0];
         ctx.beforeCoord = coord;
-        ctx.beforeIn = inTile(coord.x, coord.y);
+        ctx.beforeIn = isPointInsideTile(coord.x, coord.y);
         if (ctx.beforeIn) {
             ctx.coordinates.add(new IndexedCoordinate(Indexed.middle, coord));
         }
@@ -119,7 +117,7 @@ public class TileClip {
             coord = coords[i];
             double x = coord.x;
             double y = coord.y;
-            boolean in = inTile(x, y);
+            boolean in = isPointInsideTile(x, y);
             if (in) {//按当前点和前一个点是否在tile内分别处理
                 if (ctx.beforeIn) {
                     lineIn2In(ctx, coord, x, y);
@@ -230,7 +228,10 @@ public class TileClip {
     /////////////////////////end线的处理
 
 
-    private boolean inTile(double x, double y) {
+    /**
+     * 判断点是否在瓦片内部
+     */
+    private boolean isPointInsideTile(double x, double y) {
         return x >= xmin && x <= xmax && y >= ymin && y <= ymax;
     }
 

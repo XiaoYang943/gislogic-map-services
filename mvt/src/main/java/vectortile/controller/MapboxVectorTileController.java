@@ -49,7 +49,8 @@ public class MapboxVectorTileController {
             Geometry geometry = (org.locationtech.jts.geom.Geometry) simpleFeature.getDefaultGeometry();
 
             // 如果当前 Feature 的 geometery 和当前zxy的瓦片相交
-            if (mapboxVectorTileBuilder.getBbox().envIntersects(geometry)) {
+            if (mapboxVectorTileBuilder.getTileBBox().envIntersects(geometry)) {
+//            if (mapboxVectorTileBuilder.getTileBBox().envIntersects(geometry)) {
                 layer.addFeature(new CustomFeature(geometry, map), 0.05, z, (byte) 5);   // 给图层添加当前 Feature
             }
         }

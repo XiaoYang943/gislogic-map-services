@@ -11,14 +11,10 @@ import java.util.*;
 
 
 public final class MapboxVectorTileLayer {
-
     public final List<MapboxVectorTileFeature> mapboxVectorTileFeatureList = new LinkedList<>();
-
     private final Map<String, Integer> attributeNameLinkedHashMap = new LinkedHashMap<>();   // 存储字符串键和它们对应的整数值，键的插入顺序将被保留
     private final Map<Object, Integer> attributeValueLinkedHashMap = new LinkedHashMap<>();
-
     private final MapboxVectorTileBuilder mapboxVectorTileBuilder;
-
 
     public MapboxVectorTileLayer(MapboxVectorTileBuilder mapboxVectorTileBuilder) {
         this.mapboxVectorTileBuilder = mapboxVectorTileBuilder;
@@ -34,8 +30,17 @@ public final class MapboxVectorTileLayer {
      */
     public void addFeature(CustomFeature customFeature, Double simplificationDistanceTolerance, byte curZ, byte minZ) {
         // 先简化再裁剪比先裁剪再简化效率要高
-        customFeature = simplifyGeometry(customFeature, simplificationDistanceTolerance, curZ, minZ);
-        addCipedGeometryAndAttributes(customFeature.getProperties(), clipGeometry(customFeature.getGeometry()));
+        simplifyGeometry(customFeature, simplificationDistanceTolerance, curZ, minZ);
+        addMapboxVectorTileFeature2List(customFeature.getProperties(), getIntersectionOfTileAndFeature(customFeature.getGeometry()));
+    }
+
+    /**
+     * 给图层添加Feature
+     *
+     * @param customFeature 自定义要素，包含properties和geometry
+     */
+    public void addFeature(CustomFeature customFeature) {
+        addMapboxVectorTileFeature2List(customFeature.getProperties(), getIntersectionOfTileAndFeature(customFeature.getGeometry()));
     }
 
     /**
@@ -45,9 +50,8 @@ public final class MapboxVectorTileLayer {
      * @param simplificationDistanceTolerance DP简化阈值
      * @param curZ                            当前zoom
      * @param minZ                            最小zoom
-     * @return
      */
-    private CustomFeature simplifyGeometry(CustomFeature customFeature, Double simplificationDistanceTolerance, byte curZ, byte minZ) {
+    private void simplifyGeometry(CustomFeature customFeature, Double simplificationDistanceTolerance, byte curZ, byte minZ) {
         Geometry geometry = customFeature.getGeometry();
         /**
          * Geometry类型：
@@ -74,38 +78,38 @@ public final class MapboxVectorTileLayer {
                 customFeature.setGeometry(geometry);
             }
         }
-        return customFeature;
     }
 
 
-    private void addCipedGeometryAndAttributes(Map<String, ?> attributes, Geometry clipedGeometry) {
+    private void addMapboxVectorTileFeature2List(Map<String, ?> attributes, Geometry clipedGeometry) {
         if (null == clipedGeometry || clipedGeometry.isEmpty()) {
             return;//裁剪完没有交集则直接return
         }
         // 转换并添加feature
         ArrayList<Integer> tags = attributeMap2TagsList(attributes);
-        List<Geometry> resolveGeometries = new LinkedList<>();
-        resolveGeometryCollection(clipedGeometry, resolveGeometries);
-        for (Geometry resolveGeometry : resolveGeometries) {
+        List<Geometry> resultGeometries = new LinkedList<>();
+        resolveGeometryCollection(clipedGeometry, resultGeometries);
+        for (Geometry resultGeometry : resultGeometries) {
             MapboxVectorTileFeature feature = new MapboxVectorTileFeature();
-            feature.geometry = resolveGeometry;
+            feature.geometry = resultGeometry;
             feature.tags = tags;
             mapboxVectorTileFeatureList.add(feature);
         }
     }
 
-    //拆出GeometryCollection中的geometry塞到list中
-    private void resolveGeometryCollection(Geometry geometry, List<Geometry> resolveGeometries) {
+    /**
+     * 处理 GeometryCollection ，拆分为若干个 Geometry 加入到List中
+     */
+    private void resolveGeometryCollection(Geometry geometry, List<Geometry> resultGeometries) {
         for (int i = 0; i < geometry.getNumGeometries(); i++) {
             Geometry subGeometry = geometry.getGeometryN(i);
             if (subGeometry.getClass().equals(GeometryCollection.class)) {
-                resolveGeometryCollection(subGeometry, resolveGeometries);
+                resolveGeometryCollection(subGeometry, resultGeometries);
             } else {
-                resolveGeometries.add(subGeometry);
+                resultGeometries.add(subGeometry);
             }
         }
     }
-
 
     /**
      * attributeMap转为TagsList
@@ -155,7 +159,13 @@ public final class MapboxVectorTileLayer {
     }
 
 
-    private Geometry clipGeometry(Geometry geometry) {
+    /**
+     * 用瓦片裁剪Feature
+     *
+     * @param geometry
+     * @return
+     */
+    private Geometry getIntersectionOfTileAndFeature(Geometry geometry) {
         try {
             return mapboxVectorTileBuilder.tileClip.intersection(geometry);
         } catch (TopologyException e) {

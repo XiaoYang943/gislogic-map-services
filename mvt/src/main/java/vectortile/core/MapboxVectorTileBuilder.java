@@ -28,7 +28,7 @@ public class MapboxVectorTileBuilder {
 
     private final Map<String, MapboxVectorTileLayer> layers = new LinkedHashMap<>();
 
-    private final Bbox bbox;
+    private final Bbox tileBBox;
     private static final GeometryFactory geometryFactory = new GeometryFactory();   // 几何工厂
 
     public MapboxVectorTileBuilder(byte zoom, int tileX, int tileY) {
@@ -51,8 +51,8 @@ public class MapboxVectorTileBuilder {
      */
     public MapboxVectorTileBuilder(byte zoom, int tileX, int tileY, int extent, int clipBuffer) {
         this.extent = extent;
-        bbox = createTileBbox(zoom, tileX, tileY, extent, clipBuffer);
-        tileClip = new TileClip(bbox.xmin, bbox.ymin, bbox.xmax, bbox.ymax, geometryFactory);
+        tileBBox = createTileBbox(zoom, tileX, tileY, extent, clipBuffer);
+        tileClip = new TileClip(tileBBox.xmin, tileBBox.ymin, tileBBox.xmax, tileBBox.ymax, geometryFactory);
         mvtCoordinateConvertor = new MvtAndWGS84Convertor(zoom, tileX, tileY);
     }
 
@@ -97,8 +97,8 @@ public class MapboxVectorTileBuilder {
     }
 
 
-    public Bbox getBbox() {
-        return bbox;
+    public Bbox getTileBBox() {
+        return tileBBox;
     }
 
     /**
