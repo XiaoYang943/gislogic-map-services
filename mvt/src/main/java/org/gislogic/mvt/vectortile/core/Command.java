@@ -16,7 +16,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  ****************************************************************/
-package vectortile.core;
+package org.gislogic.mvt.vectortile.core;
 
 public final class Command {
 

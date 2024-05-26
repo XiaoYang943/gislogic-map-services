@@ -1,13 +1,13 @@
-package vectortile.core;
+package org.gislogic.mvt.vectortile.core;
 
+import org.gislogic.mvt.vector_tile.VectorTile;
+import org.gislogic.mvt.vectortile.pojo.MapboxVectorTileFeature;
 import org.locationtech.jts.algorithm.Orientation;
 import org.locationtech.jts.geom.*;
 import utils.converter.MvtAndWGS84Convertor;
 import utils.converter.Tile2Wgs84;
 import utils.geom.Bbox;
 import utils.geom.GeometryValidator;
-import vector_tile.VectorTile;
-import vectortile.pojo.MapboxVectorTileFeature;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

@@ -1,7 +1,10 @@
-package vectortile.controller;
+package org.gislogic.mvt.vectortile.controller;
 
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
+import org.gislogic.mvt.vectortile.core.MapboxVectorTileBuilder;
+import org.gislogic.mvt.vectortile.core.MapboxVectorTileLayer;
+import org.gislogic.mvt.vectortile.pojo.CustomFeature;
 import org.locationtech.jts.geom.Geometry;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
@@ -9,9 +12,6 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import vectortile.core.MapboxVectorTileBuilder;
-import vectortile.core.MapboxVectorTileLayer;
-import vectortile.pojo.CustomFeature;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;

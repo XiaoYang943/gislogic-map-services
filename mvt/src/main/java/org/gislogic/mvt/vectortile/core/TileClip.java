@@ -1,4 +1,4 @@
-package vectortile.core;
+package org.gislogic.mvt.vectortile.core;
 
 import org.locationtech.jts.geom.*;
 

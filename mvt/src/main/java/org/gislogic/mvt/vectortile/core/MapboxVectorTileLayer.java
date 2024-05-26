@@ -1,11 +1,11 @@
-package vectortile.core;
+package org.gislogic.mvt.vectortile.core;
 
 
+import org.gislogic.mvt.vectortile.pojo.CustomFeature;
+import org.gislogic.mvt.vectortile.pojo.MapboxVectorTileFeature;
 import org.locationtech.jts.geom.*;
 import org.locationtech.jts.simplify.DouglasPeuckerSimplifier;
 import org.locationtech.jts.simplify.TopologyPreservingSimplifier;
-import vectortile.pojo.CustomFeature;
-import vectortile.pojo.MapboxVectorTileFeature;
 
 import java.util.*;
 

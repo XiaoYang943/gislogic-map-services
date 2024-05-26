@@ -1,4 +1,4 @@
-package vectortile.pojo;
+package org.gislogic.mvt.vectortile.pojo;
 
 import org.locationtech.jts.geom.Geometry;
 
