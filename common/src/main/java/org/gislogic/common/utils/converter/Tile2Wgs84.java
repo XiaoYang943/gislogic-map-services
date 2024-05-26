@@ -17,7 +17,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  ****************************************************************/
-package utils.converter;
+package org.gislogic.common.utils.converter;
 
 import org.apache.commons.math.util.FastMath;
 

@@ -2,6 +2,7 @@ package org.gislogic.mvt.vectortile.controller;
 
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
+import org.gislogic.common.utils.converter.DataFormatConverter;
 import org.gislogic.mvt.vectortile.core.MapboxVectorTileBuilder;
 import org.gislogic.mvt.vectortile.core.MapboxVectorTileLayer;
 import org.gislogic.mvt.vectortile.pojo.CustomFeature;
@@ -19,8 +20,6 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.List;
 
-import static utils.converter.SimpleFeatureCollectionConverter.convertGeoJSON2SimpleFeatureCollection;
-
 
 @RestController()
 @RequestMapping("/tile")
@@ -34,7 +33,7 @@ public class MapboxVectorTileController {
     public void getMapboxVectorTile(@PathVariable byte z, @PathVariable int x, @PathVariable int y, HttpServletResponse response) {
         MapboxVectorTileBuilder mapboxVectorTileBuilder = new MapboxVectorTileBuilder(z, x, y);   // 构造 MapboxVectorTileBuilder
         MapboxVectorTileLayer layer = mapboxVectorTileBuilder.getOrCreateLayer("省区域");    // 创建图层
-        SimpleFeatureCollection featureCollection = convertGeoJSON2SimpleFeatureCollection("C:\\Users\\13522\\IdeaProjects\\map-services\\mvt\\src\\main\\resources\\china.json");
+        SimpleFeatureCollection featureCollection = DataFormatConverter.convertGeoJSON2SimpleFeatureCollection("C:\\Users\\13522\\IdeaProjects\\map-services\\mvt\\src\\main\\resources\\china.json");
         SimpleFeatureIterator iterator = featureCollection.features();
         while (iterator.hasNext()) {    // 遍历源数据的每一个 Feature
             org.opengis.feature.simple.SimpleFeature simpleFeature = iterator.next();

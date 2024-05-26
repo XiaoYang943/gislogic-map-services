@@ -1,9 +1,9 @@
-package utils.converter;
+package org.gislogic.common.utils.converter;
 
 /**
  * 矢量瓦片的坐标系与wgs84坐标系互转
  */
-public class MvtAndWGS84Convertor {
+public class MapboxVectorTileConvertor {
     private static final short TILE_SIZE = 256;
 
     private static final long[] pow2;
@@ -27,7 +27,7 @@ public class MvtAndWGS84Convertor {
      * @param x 瓦片 x
      * @param y 瓦片 y
      */
-    public MvtAndWGS84Convertor(byte zoom, int tileX, int tileY) {
+    public MapboxVectorTileConvertor(byte zoom, int tileX, int tileY) {
         // 当前瓦片的canvas坐标
         pixelX = tileX * TILE_SIZE;
         pixelY = tileY * TILE_SIZE;

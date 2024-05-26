@@ -1,13 +1,13 @@
 package org.gislogic.mvt.vectortile.core;
 
+import org.gislogic.common.utils.converter.MapboxVectorTileConvertor;
+import org.gislogic.common.utils.converter.Tile2Wgs84;
+import org.gislogic.common.utils.geom.Bbox;
+import org.gislogic.common.utils.geom.GeometryValidator;
 import org.gislogic.mvt.vector_tile.VectorTile;
 import org.gislogic.mvt.vectortile.pojo.MapboxVectorTileFeature;
 import org.locationtech.jts.algorithm.Orientation;
 import org.locationtech.jts.geom.*;
-import utils.converter.MvtAndWGS84Convertor;
-import utils.converter.Tile2Wgs84;
-import utils.geom.Bbox;
-import utils.geom.GeometryValidator;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -26,7 +26,7 @@ public class MapboxVectorTileBuilder {
 
     public final TileClip tileClip;
 
-    private final MvtAndWGS84Convertor mvtCoordinateConvertor;
+    private final MapboxVectorTileConvertor mvtCoordinateConvertor;
 
     private final Map<String, MapboxVectorTileLayer> layers = new LinkedHashMap<>();
 
@@ -55,7 +55,7 @@ public class MapboxVectorTileBuilder {
         this.extent = extent;
         tileBBox = createTileBbox(zoom, tileX, tileY, extent, clipBuffer);
         tileClip = new TileClip(tileBBox.xmin, tileBBox.ymin, tileBBox.xmax, tileBBox.ymax, geometryFactory);
-        mvtCoordinateConvertor = new MvtAndWGS84Convertor(zoom, tileX, tileY);
+        mvtCoordinateConvertor = new MapboxVectorTileConvertor(zoom, tileX, tileY);
     }
 
     /**

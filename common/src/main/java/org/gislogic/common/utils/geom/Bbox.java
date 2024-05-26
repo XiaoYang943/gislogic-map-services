@@ -1,4 +1,4 @@
-package utils.geom;
+package org.gislogic.common.utils.geom;
 
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
