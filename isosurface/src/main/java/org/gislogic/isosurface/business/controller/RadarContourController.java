@@ -7,14 +7,15 @@ import org.geotools.data.DataStore;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.FeatureCollection;
 import org.gislogic.common.utils.database.DataStorageInDatabaseUtil;
-import org.gislogic.common.utils.database.PostgisDataStoreUtil;
-import org.gislogic.isosurface.InputDataProcessUtil;
-import org.gislogic.isosurface.RadarColorEnum;
-import org.gislogic.isosurface.RadarEntity;
 import org.gislogic.isosurface.business.domain.RadarCrPartitionRelationshipEntity;
 import org.gislogic.isosurface.business.domain.RadarCrReq;
 import org.gislogic.isosurface.business.domain.RadarTrainDataEntity;
 import org.gislogic.isosurface.business.service.RadarCrPartitionRelationshipService;
+import org.gislogic.isosurface.configuration.GeoToolsPostgisConfiguration;
+import org.gislogic.isosurface.utils.InputDataProcessUtil;
+import org.gislogic.isosurface.utils.PostgisDataStoreUtil;
+import org.gislogic.isosurface.utils.RadarColorEnum;
+import org.gislogic.isosurface.utils.RadarEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.File;
 import java.io.IOException;
 
-import static org.gislogic.isosurface.CreateIsosurfaceUtil.equiSurface;
+import static org.gislogic.isosurface.utils.CreateIsosurfaceUtil.equiSurface;
 
 
 @RestController
@@ -33,27 +34,6 @@ public class RadarContourController {
 
     @Autowired
     RadarCrPartitionRelationshipService radarCrPartitionRelationshipService;
-
-//    @PostMapping("/add")
-//    public void calContour(@RequestParam("filePath") String filePath, @RequestParam("fileTime") String fileTime, @RequestParam("fileStation") String fileStation) throws IOException {
-//
-////        TrainData trainData = getTrainingDataByJsonFile("C:\\Users\\heyiyang\\IdeaProjects\\web-service\\src\\main\\resources\\data\\contour\\input\\wContourData_0.01.json", "UTF-8", "lon", "lat", "value", "config");
-//        RadarTrainDataEntity trainData = radarCrPartitionRelationshipService.getTrainingDataByJsonFile(filePath, "UTF-8", "lon", "lat", "value", "config");
-//
-//        File file = new File(filePath);
-//        String fileName = file.getName();
-//        String tableName = fileName.substring(0, fileName.lastIndexOf('.'));
-//
-//        double[] dataInterval = RadarColorEnum.getValueArray();
-//        FeatureCollection featureCollection = RadarContourUtil.equiSurface(trainData, dataInterval, fileTime, fileStation);
-//
-////        WriteGeoJson2pgUtil.writeSimpleFeatureCollection2pg((SimpleFeatureCollection) featureCollection,tableName);
-////        radar_cr_zlxy
-//
-//        WriteGeoJson2pgUtil.writeSimpleFeatureCollection2pgByIterator((SimpleFeatureCollection) featureCollection, "radar_cr_zlxy_test_202402010101",false);
-//
-//
-//    }
 
     /**
      * 2024-2-2
@@ -86,8 +66,12 @@ public class RadarContourController {
             /**
              * 从PyCWR生成的格网json中提取训练数据
              */
-            String filePath = "Z:\\radar_base_zlxy_target\\" + req.getFilePath(); // TODO:集成到系统中后，需要改 Base 地址
+//            String filePath = "D:\\my-store\\resources\\data\\contour\\input\\" + req.getFilePath(); // TODO:集成到系统中后，需要改 Base 地址
+
+            String filePath = req.getFilePath(); // TODO:集成到系统中后，需要改 Base 地址
+
             if (!new File(filePath).exists()) {
+                System.out.println(filePath + "不存在");
                 return false;
             }
             RadarTrainDataEntity trainData = radarCrPartitionRelationshipService.getTrainingDataByJsonFile(filePath, "UTF-8", "lon", "lat", "value", "config");
@@ -114,13 +98,13 @@ public class RadarContourController {
             /**
              * 创建分区表
              */
-//            RadarCrPartitionRelationshipEntity radarCrPartitionRelationshipEntity = new RadarCrPartitionRelationshipEntity();
-//            radarCrPartitionRelationshipEntity.setSchema("gis_radar");
-//            radarCrPartitionRelationshipEntity.setSubTableName("radar_cr_zlxy3"+"_"+req.getFileTime());
-//            radarCrPartitionRelationshipEntity.setMainTableName("radar_cr_zlxy3");
-//            radarCrPartitionRelationshipEntity.setRelationshipPrimaryKey(req.getFileTime());
-//            radarCrPartitionRelationshipService.createPartitionTable(radarCrPartitionRelationshipEntity);
-//            Console.log("Timer 创建分区表 took {} ms", timer.intervalMs("createPartitionTable"));
+            RadarCrPartitionRelationshipEntity radarCrPartitionRelationshipEntity = new RadarCrPartitionRelationshipEntity();
+            radarCrPartitionRelationshipEntity.setSchema("gis_radar");
+            radarCrPartitionRelationshipEntity.setSubTableName("radar_cr_zlxy3" + "_" + req.getFileTime());
+            radarCrPartitionRelationshipEntity.setMainTableName("radar_cr_zlxy3");
+            radarCrPartitionRelationshipEntity.setRelationshipPrimaryKey(req.getFileTime());
+            radarCrPartitionRelationshipService.createPartitionTable(radarCrPartitionRelationshipEntity);
+            Console.log("Timer 创建分区表 took {} ms", timer.intervalMs("createPartitionTable"));
 
 
             timer.start("writeSimpleFeatureCollection2pg");
@@ -128,7 +112,7 @@ public class RadarContourController {
              * 给分区表写入等值面数据
              */
 //            DataStore dataStore = PostgisDataStore.getInstance();
-            DataStore dataStore = PostgisDataStoreUtil.getPostgisDataStore();
+            DataStore dataStore = new PostgisDataStoreUtil().getPostgisDataStore(geoToolsPostgisConfiguration);
             boolean bool = DataStorageInDatabaseUtil.writeSimpleFeatureCollection2pgByBatch((SimpleFeatureCollection) featureCollection, "radar_cr_zlxy3", dataStore, false);
             Console.log("Timer 给分区表写入数据 took {} ms", timer.intervalMs("writeSimpleFeatureCollection2pg"));
 
@@ -147,10 +131,13 @@ public class RadarContourController {
      * "filePath": "ftp_target_zlxy/2024/02/04/06/Z_RADR_I_Z9915_20240204061542_O_DOR_CB_CAP_FMT.bin.bz2.json"
      * }
      */
+    @Autowired
+    private GeoToolsPostgisConfiguration geoToolsPostgisConfiguration;
+
     @PostMapping("/test1")
     public void test1() {
 
-        File directory = new File("D:\\radar\\output");
+        File directory = new File("D:\\my-store\\gis\\data\\radar\\output");
 
         File[] files = directory.listFiles();
         if (files != null) {
@@ -186,7 +173,7 @@ public class RadarContourController {
                     radarCrPartitionRelationshipEntity.setRelationshipPrimaryKey(fileTime);
                     radarCrPartitionRelationshipService.createPartitionTable(radarCrPartitionRelationshipEntity);
 //                    给pg分区表写入数据时，报错：org.postgresql.util.PSQLException: ERROR: no partition of relation "radar_cr_zlxy3" found for row 详细：Partition key of the failing row contains (file_time) = (202402010602).
-                    DataStore postgisDataStore = PostgisDataStoreUtil.getPostgisDataStore();
+                    DataStore postgisDataStore = new PostgisDataStoreUtil().getPostgisDataStore(geoToolsPostgisConfiguration);
                     boolean testRadar = DataStorageInDatabaseUtil.writeSimpleFeatureCollection2pgByBatch((SimpleFeatureCollection) featureCollection, "radar_cr_zlxy3", postgisDataStore, false);
                     System.out.println(testRadar);
 
@@ -194,5 +181,4 @@ public class RadarContourController {
             }
         }
     }
-
 }

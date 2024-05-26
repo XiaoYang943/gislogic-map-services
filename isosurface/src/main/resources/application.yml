@@ -1,0 +1,33 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+server:
+  port: 8800
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      logic-delete-field: flag
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+postgis:
+  dbtype: postgis
+  host: localhost
+  port: 5432
+  database: postgres
+  schema: gis_radar
+  username: postgres
+  password: postgres
+  maxconn: 50
+  minconn: 1
+  maxwait: 5
+  exposePk: true
+  pkMetadataTable: gis_radar.gt_pk_metadata
+
+
+
+

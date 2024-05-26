@@ -1,4 +1,4 @@
-package org.gislogic.isosurface;
+package org.gislogic.isosurface.utils;
 
 import cn.hutool.json.JSONObject;
 import lombok.Data;

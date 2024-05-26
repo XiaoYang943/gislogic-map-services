@@ -1,4 +1,4 @@
-package org.gislogic.isosurface;
+package org.gislogic.isosurface.utils;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

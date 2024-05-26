@@ -1,4 +1,4 @@
-package org.gislogic.isosurface;
+package org.gislogic.isosurface.utils;
 
 import java.util.HashMap;
 import java.util.Map;

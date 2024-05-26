@@ -1,7 +1,8 @@
 package org.gislogic.isosurface.business.mapper;
 
-import cn.gislogic.business.domain.RadarCrPartitionRelationshipEntity;
+
 import org.apache.ibatis.annotations.Mapper;
+import org.gislogic.isosurface.business.domain.RadarCrPartitionRelationshipEntity;
 
 @Mapper
 public interface RadarCrPartitionRelationshipMapper {

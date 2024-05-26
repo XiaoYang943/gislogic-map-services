@@ -2,10 +2,14 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="cn.gislogic.business.mapper.RadarCrPartitionRelationshipMapper">
-<!--    Boolean createPartitionTable(RadarCrPartitionRelationshipEntity radarCrPartitionRelationshipEntity);-->
-    <insert id="createPartitionTable" parameterType="cn.gislogic.business.domain.RadarCrPartitionRelationshipEntity">
+<mapper namespace="org.gislogic.isosurface.business.mapper.RadarCrPartitionRelationshipMapper">
+    <!--    Boolean createPartitionTable(RadarCrPartitionRelationshipEntity radarCrPartitionRelationshipEntity);-->
+    <insert id="createPartitionTable"
+            parameterType="org.gislogic.isosurface.business.domain.RadarCrPartitionRelationshipEntity">
         CREATE TABLE IF NOT EXISTS ${schema}.${subTableName} PARTITION OF ${schema}.${mainTableName} FOR
-            VALUES IN (${relationshipPrimaryKey});
+            VALUES IN
+        (
+            ${relationshipPrimaryKey}
+        );
     </insert>
 </mapper>

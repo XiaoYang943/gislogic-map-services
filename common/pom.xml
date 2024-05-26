@@ -64,5 +64,9 @@
         <!--            <groupId>it.geosolutions</groupId>-->
         <!--            <artifactId>geoserver-manager</artifactId>-->
         <!--        </dependency>-->
+        <dependency>
+            <groupId>com.github.dov-vlaanderen</groupId>
+            <artifactId>geoserver-manager</artifactId>
+        </dependency>
     </dependencies>
 </project>

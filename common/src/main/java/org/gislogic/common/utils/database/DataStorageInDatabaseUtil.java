@@ -10,6 +10,7 @@ import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.referencing.CRS;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -164,7 +165,7 @@ public class DataStorageInDatabaseUtil {
                     String propertyName = property.getName().toString();
                     Object value = property.getValue();
                     if (propertyName.equals("value")) { // 如果字段名是 value
-//                        TODO 如何解耦
+//                        TODO-hyy 如何解耦
 //                        if (value instanceof Number) {
 //                            double doubleValue = ((Number) value).doubleValue();
 //                            if (doubleValue >= RadarColorEnum.getMinValue() && doubleValue <= RadarColorEnum.getMaxValue()) { // 如果value的值在[5-70]之间
@@ -177,6 +178,7 @@ public class DataStorageInDatabaseUtil {
                     }
                 }
 
+                // TODO-hyy 如何解耦
                 // 如果找到了有效的 value 属性，则写入要素，否则跳过
                 if (hasValidValue) {
                     /**
@@ -211,15 +213,9 @@ public class DataStorageInDatabaseUtil {
         typeBuilder.init(featureType);
         typeBuilder.setName(tableName);
         if (crs == null) {  // 警告: Couldn't determine CRS of table naip_20240223 with srid: 0.
-            try {
-                CoordinateReferenceSystem decode = CRS.decode("EPSG:4326");
-                typeBuilder.setCRS(decode);
-                // typeBuilder.setCRS(DefaultGeographicCRS.WGS84);
-            } catch (NoSuchAuthorityCodeException e) {
-                throw new RuntimeException(e);
-            } catch (FactoryException e) {
-                throw new RuntimeException(e);
-            }
+            //                CoordinateReferenceSystem decode = CRS.decode("EPSG:4326");
+//                typeBuilder.setCRS(decode);
+            typeBuilder.setCRS(DefaultGeographicCRS.WGS84);
         }
 
         SimpleFeatureType newtype = typeBuilder.buildFeatureType();
@@ -244,63 +240,9 @@ public class DataStorageInDatabaseUtil {
      * 缺点：写入时不能修改属性
      **/
     public static boolean writeSimpleFeatureCollection2pgByBatch(SimpleFeatureCollection featureCollection, String tableName, DataStore dataStore, Boolean isNewTable) {
-//        if (isNewTable) {   // 新建表
-//            SimpleFeatureType simpleFeatureType = featureCollection.getSchema();
-//            try {
-//                SimpleFeatureTypeBuilder typeBuilder = new SimpleFeatureTypeBuilder();
-//                CoordinateReferenceSystem crs = simpleFeatureType.getCoordinateReferenceSystem();   // 警告: Couldn't determine CRS of table naip_20240223 with srid: 0.
-//                if (crs == null) {
-//                    try {
-//                        CoordinateReferenceSystem decode = CRS.decode("EPSG:4326");
-//                        typeBuilder = typeBuilder.crs(decode);
-////                        typeBuilder.setCRS(decode);
-////                         typeBuilder.setCRS(DefaultGeographicCRS.WGS84);
-//                    } catch (NoSuchAuthorityCodeException e) {
-//                        throw new RuntimeException(e);
-//                    } catch (FactoryException e) {
-//                        throw new RuntimeException(e);
-//                    }
-//                }
-//                typeBuilder.init(simpleFeatureType);;
-//                typeBuilder.setName(tableName);
-//                SimpleFeatureType featureType = typeBuilder.buildFeatureType();
-//                dataStore.createSchema(featureType);
-//            } catch (IOException e) {
-//                throw new RuntimeException(e);
-//            }
-//        }
-
-//        if (isNewTable) {
-//            SimpleFeatureType featureType = featureCollection.getSchema();
-//            CoordinateReferenceSystem crs = featureType.getCoordinateReferenceSystem();
-//
-//            SimpleFeatureTypeBuilder typeBuilder = new SimpleFeatureTypeBuilder();
-//            typeBuilder.init(featureType);
-//            typeBuilder.setName(tableName);
-//            if (crs == null) {
-//                try {
-//                    CoordinateReferenceSystem decode = CRS.decode("EPSG:4326");
-//                    typeBuilder.setCRS(decode);
-//                    // typeBuilder.setCRS(DefaultGeographicCRS.WGS84);
-//                } catch (NoSuchAuthorityCodeException e) {
-//                    throw new RuntimeException(e);
-//                } catch (FactoryException e) {
-//                    throw new RuntimeException(e);
-//                }
-//            }
-//
-//            SimpleFeatureType newtype = typeBuilder.buildFeatureType();
-//            try {
-//                dataStore.createSchema(newtype);
-//            } catch (IOException e) {
-//                throw new RuntimeException(e);
-//            }
-//        }
-
         if (isNewTable) {
             boolean b = dataStoreCreateSchemaBySimpleFeatureCollection(featureCollection, tableName, dataStore);
             if (!b) {
-                System.out.println("建表失败");
                 return false;
             }
         }

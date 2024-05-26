@@ -1,9 +1,10 @@
 package org.gislogic.isosurface.business.service.impl;
 
-import cn.gislogic.business.domain.RadarCrPartitionRelationshipEntity;
-import cn.gislogic.business.domain.RadarTrainDataEntity;
-import cn.gislogic.business.mapper.RadarCrPartitionRelationshipMapper;
-import cn.gislogic.business.service.RadarCrPartitionRelationshipService;
+import org.gislogic.isosurface.business.domain.RadarCrPartitionRelationshipEntity;
+import org.gislogic.isosurface.business.domain.RadarTrainDataEntity;
+import org.gislogic.isosurface.business.mapper.RadarCrPartitionRelationshipMapper;
+import org.gislogic.isosurface.business.service.RadarCrPartitionRelationshipService;
+import org.gislogic.isosurface.utils.InputDataProcessUtil;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -16,8 +17,7 @@ public class RadarCrPartitionRelationshipServiceImpl implements RadarCrPartition
 
     @Override
     public RadarTrainDataEntity getTrainingDataByJsonFile(String gridDataJsonFilePath, String charset, String lonFieldName, String latFieldName, String valueFieldName, String configFieldName) throws IOException {
-        RadarTrainDataEntity trainData = getTrainingDataByJsonFile(gridDataJsonFilePath, charset, lonFieldName, latFieldName, valueFieldName, configFieldName);
-        return trainData;
+        return InputDataProcessUtil.getTrainingDataByJsonFile(gridDataJsonFilePath, charset, lonFieldName, latFieldName, valueFieldName, configFieldName);
     }
 
     @Override
