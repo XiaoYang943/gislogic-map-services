@@ -32,6 +32,7 @@
         <jts.version>1.19.0</jts.version>
         <protobuf.version>3.16.3</protobuf.version>
         <org.apache.commons.version>2.2</org.apache.commons.version>
+        <mybatis-plus.version>3.4.1</mybatis-plus.version>
     </properties>
     <dependencies>
         <dependency>
@@ -335,6 +336,24 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-math</artifactId>
                 <version>${org.apache.commons.version}</version>
+            </dependency>
+
+            <!--geoserver-->
+            <!--            <dependency>-->
+            <!--                <groupId>it.geosolutions</groupId>-->
+            <!--                <artifactId>geoserver-manager</artifactId>-->
+            <!--                <version>1.7.0</version>-->
+            <!--            </dependency>-->
+            <dependency>
+                <groupId>com.github.dov-vlaanderen</groupId>
+                <artifactId>geoserver-manager</artifactId>
+                <version>1.8.5</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-boot-starter</artifactId>
+                <version>${mybatis-plus.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.gislogic.business.mapper.MapBoxVectorTileMapper">
+
+    <resultMap type="cn.gislogic.business.domain.MapBoxVectorTileEntity" id="MapBoxVectorTileResult">
+        <result property="tile" column="tile"/>
+    </resultMap>
+    <select id="vectorTitle2" resultMap="MapBoxVectorTileResult">
+        select
+            st_asmvt (geom) as tile
+        from
+            (
+                select
+                    st_asmvtgeom (
+                            st_transform(t.the_geom,3857),
+                            st_transform(st_tileenvelope(#{z},#{x},#{y}),3857),
+                            4096,
+                            0,
+                            false),
+                    fid,
+                    value,
+                    file_station,
+                    file_time,
+                    data_time
+                from
+                    gis_radar.${tableName} t
+                where
+                    t.the_geom is not null
+                  and t.file_time =#{fileTime,jdbcType = VARCHAR}
+                  and t.file_station = #{fileStation,jdbcType = VARCHAR}
+                  and t.data_time like CONCAT(#{dataTime, jdbcType = VARCHAR}, '%')
+                  and ST_Intersects(
+                        st_transform(t.the_geom,3857),
+                        st_transform (st_tileenvelope(#{z},#{x},#{y}),3857)
+                      )
+            ) as geom
+
+    </select>
+
+    <resultMap type="cn.gislogic.business.domain.RadarDataTimeListEntity" id="DataTimeListResult">
+        <result property="dataTime" column="data_time"/>
+    </resultMap>
+    <select id="selectDataTimeList" resultMap="DataTimeListResult">
+        select
+            distinct t.data_time
+        from
+            gis_radar.radar_cr_zlxy3 t
+        where
+            t.file_time = #{fileTime, jdbcType=VARCHAR}
+          and t.file_station = #{fileStation, jdbcType=VARCHAR}
+        order by t.data_time;
+    </select>
+
+</mapper>
