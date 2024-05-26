@@ -5,6 +5,7 @@ import org.locationtech.jts.geom.*;
 import utils.converter.MvtAndWGS84Convertor;
 import utils.converter.Tile2Wgs84;
 import utils.geom.Bbox;
+import utils.geom.GeometryValidator;
 import vector_tile.VectorTile;
 import vectortile.pojo.MapboxVectorTileFeature;
 
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
 
 /**
  * mvt瓦片构造器
@@ -147,10 +149,10 @@ public class MapboxVectorTileBuilder {
                     featureBuilder.addAllTags(mapboxVectorTileFeature.tags);
                 }
 
-                VectorTile.Tile.GeomType geomType = toGeomType(geometry);
-                x = 0;
-                y = 0;
-                List<Integer> commands = commands(geometry);
+                VectorTile.Tile.GeomType geomType = toMapboxVectorTileGeomType(geometry);
+                tempX = 0;
+                tempY = 0;
+                List<Integer> commands = getCommands(geometry);
 
 
                 featureBuilder.setType(geomType);
@@ -166,7 +168,7 @@ public class MapboxVectorTileBuilder {
         return tile.build().toByteArray();
     }
 
-    private static VectorTile.Tile.GeomType toGeomType(Geometry geometry) {
+    private static VectorTile.Tile.GeomType toMapboxVectorTileGeomType(Geometry geometry) {
         if (geometry instanceof Point) {
             return VectorTile.Tile.GeomType.POINT;
         }
@@ -188,39 +190,39 @@ public class MapboxVectorTileBuilder {
         return VectorTile.Tile.GeomType.UNKNOWN;
     }
 
-    List<Integer> commands(Geometry geometry) {
+    List<Integer> getCommands(Geometry geometry) {
 
         if (geometry instanceof MultiLineString) {
-            return commands((MultiLineString) geometry);
+            return getCommands((MultiLineString) geometry);
         }
         if (geometry instanceof Polygon) {
-            return commands((Polygon) geometry);
+            return getCommands((Polygon) geometry);
         }
         if (geometry instanceof MultiPolygon) {
-            return commands((MultiPolygon) geometry);
+            return getCommands((MultiPolygon) geometry);
         }
 
-        return commands(geometry.getCoordinates(), shouldClosePath(geometry), geometry instanceof MultiPoint);
+        return getCommands(geometry.getCoordinates(), new GeometryValidator().shouldClosePath(geometry), geometry instanceof MultiPoint);
     }
 
-    List<Integer> commands(MultiLineString mls) {
+    List<Integer> getCommands(MultiLineString multiLineString) {
         List<Integer> commands = new ArrayList<>();
-        for (int i = 0; i < mls.getNumGeometries(); i++) {
-            commands.addAll(commands(mls.getGeometryN(i).getCoordinates(), false));
+        for (int i = 0; i < multiLineString.getNumGeometries(); i++) {
+            commands.addAll(getCommands(multiLineString.getGeometryN(i).getCoordinates(), false));
         }
         return commands;
     }
 
-    List<Integer> commands(MultiPolygon mp) {
+    List<Integer> getCommands(MultiPolygon multiPolygon) {
         List<Integer> commands = new ArrayList<>();
-        for (int i = 0; i < mp.getNumGeometries(); i++) {
-            Polygon polygon = (Polygon) mp.getGeometryN(i);
-            commands.addAll(commands(polygon));
+        for (int i = 0; i < multiPolygon.getNumGeometries(); i++) {
+            Polygon polygon = (Polygon) multiPolygon.getGeometryN(i);
+            commands.addAll(getCommands(polygon));
         }
         return commands;
     }
 
-    List<Integer> commands(Polygon polygon) {
+    List<Integer> getCommands(Polygon polygon) {
 
         // According to the vector tile specification, the exterior ring of a polygon
         // must be in clockwise order, while the interior ring in counter-clockwise order.
@@ -230,18 +232,25 @@ public class MapboxVectorTileBuilder {
         // Therefore, we must reverse the coordinates.
         // So, the code below will make sure that exterior ring is in counter-clockwise order
         // and interior ring in clockwise order.
+        /**
+         * 根据矢量瓦片规范，多边形的外环必须按顺时针顺序，而内环则按逆时针顺序。
+         * 在瓦片坐标系中，Y轴向下为正
+         * 在地理坐标系中，Y轴向上为正
+         * 因此，我们必须颠倒坐标
+         * 因此，下面的代码将确保外环按逆时针顺序排列内环按顺时针顺序排列
+         */
         LineString exteriorRing = polygon.getExteriorRing();
-        if (!Orientation.isCCW(exteriorRing.getCoordinates())) {
+        if (!Orientation.isCCW(exteriorRing.getCoordinates())) {    // 判断环是否是逆时针方向
             exteriorRing = exteriorRing.reverse();
         }
-        List<Integer> commands = new ArrayList<>(commands(exteriorRing.getCoordinates(), true));
+        List<Integer> commands = new ArrayList<>(getCommands(exteriorRing.getCoordinates(), true));
 
         for (int i = 0; i < polygon.getNumInteriorRing(); i++) {
             LineString interiorRing = polygon.getInteriorRingN(i);
             if (Orientation.isCCW(interiorRing.getCoordinates())) {
                 interiorRing = interiorRing.reverse();
             }
-            commands.addAll(commands(interiorRing.getCoordinates(), true));
+            commands.addAll(getCommands(interiorRing.getCoordinates(), true));
         }
         return commands;
     }
@@ -260,11 +269,11 @@ public class MapboxVectorTileBuilder {
      * @param cs cs
      * @return list
      */
-    List<Integer> commands(Coordinate[] cs, boolean closePathAtEnd) {
-        return commands(cs, closePathAtEnd, false);
+    List<Integer> getCommands(Coordinate[] cs, boolean closePathAtEnd) {
+        return getCommands(cs, closePathAtEnd, false);
     }
 
-    List<Integer> commands(Coordinate[] cs, boolean closePathAtEnd, boolean multiPoint) {
+    List<Integer> getCommands(Coordinate[] cs, boolean closePathAtEnd, boolean multiPoint) {
         if (cs.length == 0) {
             throw new IllegalArgumentException("empty geometry");
         }
@@ -287,7 +296,7 @@ public class MapboxVectorTileBuilder {
             int _y = (int) Math.round(cy);
 
             // prevent point equal to the previous
-            if (i > 0 && _x == x && _y == y) {
+            if (i > 0 && _x == tempX && _y == tempY) {
                 lineToLength--;
                 continue;
             }
@@ -299,11 +308,11 @@ public class MapboxVectorTileBuilder {
             }
 
             // delta, then zigzag
-            r.add(zigZagEncode(_x - x));
-            r.add(zigZagEncode(_y - y));
+            r.add(zigZagEncode(_x - tempX));
+            r.add(zigZagEncode(_y - tempY));
 
-            x = _x;
-            y = _y;
+            tempX = _x;
+            tempY = _y;
 
             if (i == 0 && cs.length > 1 && !multiPoint) {
                 // can length be too long?
@@ -332,8 +341,8 @@ public class MapboxVectorTileBuilder {
         return r;
     }
 
-    private int x = 0;
-    private int y = 0;
+    private int tempX = 0;
+    private int tempY = 0;
 
     static int commandAndLength(int command, int repeat) {
         return repeat << 3 | command;
@@ -344,7 +353,5 @@ public class MapboxVectorTileBuilder {
         return (n << 1) ^ (n >> 31);
     }
 
-    static boolean shouldClosePath(Geometry geometry) {
-        return (geometry instanceof Polygon) || (geometry instanceof LinearRing);
-    }
+
 }

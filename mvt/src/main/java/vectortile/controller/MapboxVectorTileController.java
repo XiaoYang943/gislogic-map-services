@@ -34,7 +34,7 @@ public class MapboxVectorTileController {
     public void getMapboxVectorTile(@PathVariable byte z, @PathVariable int x, @PathVariable int y, HttpServletResponse response) {
         MapboxVectorTileBuilder mapboxVectorTileBuilder = new MapboxVectorTileBuilder(z, x, y);   // 构造 MapboxVectorTileBuilder
         MapboxVectorTileLayer layer = mapboxVectorTileBuilder.getOrCreateLayer("省区域");    // 创建图层
-        SimpleFeatureCollection featureCollection = convertGeoJSON2SimpleFeatureCollection("C:\\Users\\heyiyang\\IdeaProjects\\gislogic-map-services\\mvt\\src\\main\\resources\\china.json");
+        SimpleFeatureCollection featureCollection = convertGeoJSON2SimpleFeatureCollection("C:\\Users\\13522\\IdeaProjects\\map-services\\mvt\\src\\main\\resources\\china.json");
         SimpleFeatureIterator iterator = featureCollection.features();
         while (iterator.hasNext()) {    // 遍历源数据的每一个 Feature
             org.opengis.feature.simple.SimpleFeature simpleFeature = iterator.next();
@@ -71,6 +71,8 @@ public class MapboxVectorTileController {
         try (OutputStream os = response.getOutputStream()) {
             os.write(bytes);
             os.flush();
+        } catch (org.apache.catalina.connector.ClientAbortException e) {
+            //地图移动时客户端主动取消， 产生异常"你的主机中的软件中止了一个已建立的连接"，无需处理
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

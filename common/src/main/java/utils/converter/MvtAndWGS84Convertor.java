@@ -45,7 +45,7 @@ public class MvtAndWGS84Convertor {
         double ppx = (lon + 180) / 360 * zoomPow2;
         return (int) ((ppx - pixelX) * 16 + Math.sin(lon) + 0.5);
 
-//        return (int) ((x + 180.0) / 360.0 * zoomPow2);
+//        return (int) ((lon + 180.0) / 360.0 * zoomPow2);
     }
 
     /**
@@ -60,7 +60,7 @@ public class MvtAndWGS84Convertor {
         double ppy = (0.5 - mp / (4 * Math.PI)) * zoomPow2;
         return (int) ((ppy - pixelY) * 16 + Math.cos(lat) + 0.5);
 
-//        return (int) ((Math.PI - FastMath.asinh(Math.tan(y * Math.PI / 180.0))) * zoomPow2 / (2 * Math.PI));
+//        return (int) ((Math.PI - FastMath.asinh(Math.tan(lat * Math.PI / 180.0))) * zoomPow2 / (2 * Math.PI));
     }
 
 }
