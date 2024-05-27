@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class BuildGeometryUtil {
+public class GeometryBuilder {
     private static final GeometryFactory geometryFactory = new GeometryFactory();
 
     /**

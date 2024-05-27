@@ -1,22 +1,55 @@
-package org.gislogic.isosurface.utils;
-
+package org.gislogic.isosurface.radar.data;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.feature.DefaultFeatureCollection;
+import org.geotools.feature.simple.SimpleFeatureBuilder;
+import org.gislogic.common.utils.feature.SimpleFeatureHelper;
+import org.gislogic.isosurface.radar.business.entity.RadarEntity;
 import org.gislogic.isosurface.radar.business.pojo.GridData;
+import org.gislogic.isosurface.radar.business.pojo.IsosurfaceFeature;
+import org.gislogic.isosurface.radar.enums.RadarColorEnum;
 
 import java.io.File;
 import java.nio.charset.Charset;
+import java.util.List;
 
-/**
- * @description: 生成等值面方法的入参数据处理工具类
- * @author: hyy
- * @create: 2024-02-12
- **/
+public class RadarDataHelper {
+    /**
+     * 等值面要素列表转为简单要素集合
+     *
+     * @param featureList 等值面要素集合
+     * @param radarEntity 雷达实体类
+     * @return 简单要素集合
+     */
+    public static SimpleFeatureCollection isosurfaceFeatureList2SimpleFeatureCollection(List<IsosurfaceFeature> featureList, RadarEntity radarEntity) {
+        SimpleFeatureBuilder simpleFeatureBuilder = SimpleFeatureHelper.createSimpleFeatureBuilder(radarEntity.getClass());
+        DefaultFeatureCollection collection = new DefaultFeatureCollection();
 
-public class InputDataProcessUtil {
+        for (IsosurfaceFeature feature : featureList) {
+
+            double value = feature.getValue();
+            org.locationtech.jts.geom.Polygon polygon = feature.getPolygon();
+
+            if (value >= RadarColorEnum.getMinValue() && value <= RadarColorEnum.getMaxValue()) {
+                /**
+                 * add的顺序要和实体类的字段顺序保持一致
+                 */
+                simpleFeatureBuilder.add(polygon);
+                simpleFeatureBuilder.add(value);
+                simpleFeatureBuilder.add(radarEntity.getFile_time());
+                simpleFeatureBuilder.add(radarEntity.getData_time());
+                simpleFeatureBuilder.add(radarEntity.getFile_station());
+
+                collection.add(simpleFeatureBuilder.buildFeature(null));
+            }
+        }
+        return collection;
+    }
+
     /**
      * @param gridDataJsonFilePath 格网数据JSON文件路径
      * @param charset              文件字符集

@@ -1,11 +1,10 @@
 package org.gislogic.isosurface.utils;
 
 
+import org.gislogic.common.utils.geom.GeometryTopologicalRelationshipHelper;
 import org.gislogic.isosurface.radar.enums.ConstantEnum;
-import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Polygon;
 
-import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -46,8 +45,7 @@ public class FeatureExceptionHand {
      * @param geometryMapList
      * @return
      */
-    private static Map<String, Object> contactPolygon(Map<String, Object> map, Set<Integer> isUnionSet,
-                                                      List<Map<String, Object>> geometryMapList) {
+    private static Map<String, Object> contactPolygon(Map<String, Object> map, Set<Integer> isUnionSet, List<Map<String, Object>> geometryMapList) {
         Double value = (double) map.get(ConstantEnum.VALUE);
         Polygon polygon = (Polygon) map.get(ConstantEnum.THE_GEOM);
         if (!polygon.isValid()) {
@@ -71,12 +69,11 @@ public class FeatureExceptionHand {
                 // 无效不进行下一步
                 continue;
             }
-            if (!contact(polygon, unionPolygon)) {
+            if (!GeometryTopologicalRelationshipHelper.isIntersect(polygon, unionPolygon)) {
                 continue;
             }
             // 判断是否被不等值面包含（不相交的等值面才需要判断是否被不等值面包含）
-            if (!polygon.intersects(unionPolygon) && otherValueWithin(polygon, value, map.hashCode(),
-                    geometryMapList)) {
+            if (!polygon.intersects(unionPolygon) && otherValueWithin(polygon, value, map.hashCode(), geometryMapList)) {
                 continue;
             }
             try {
@@ -105,8 +102,7 @@ public class FeatureExceptionHand {
      * @param geometryMapList
      * @return
      */
-    private static boolean otherValueWithin(Polygon polygon, Double value, int hashCode,
-                                            List<Map<String, Object>> geometryMapList) {
+    private static boolean otherValueWithin(Polygon polygon, Double value, int hashCode, List<Map<String, Object>> geometryMapList) {
         for (Map<String, Object> map : geometryMapList) {
             Polygon p = (Polygon) map.get(ConstantEnum.THE_GEOM);
             if (Objects.equals(hashCode, map.hashCode())) {
@@ -124,52 +120,5 @@ public class FeatureExceptionHand {
         return false;
     }
 
-    /**
-     * 判断两个面是否有合并的条件
-     *
-     * @param polygon1
-     * @param polygon2
-     * @return
-     */
-    private static boolean contact(Polygon polygon1, Polygon polygon2) {
-        // 相交
-        if (polygon1.intersects(polygon2)) {
-            return true;
-        }
-        // 包含
-        if (polygon1.contains(polygon2)) {
-            return true;
-        }
-        // 内含
-        if (polygon1.within(polygon2)) {
-            // polygon1图形内含在polygon2图形里
-            return true;
-        }
-        return false;
-    }
 
-
-    /**
-     * 处理问题：Points of LinearRing do not form a closed linestring
-     *
-     * @param coordinates
-     * @return
-     */
-    public static Coordinate[] isClosedLine(Coordinate[] coordinates) {
-        // 起点，终点
-        Coordinate startPoint = coordinates[0];
-        Coordinate thePoint = coordinates[coordinates.length - 1];
-        if (new BigDecimal(startPoint.x).compareTo(new BigDecimal(thePoint.x)) != 0
-                || new BigDecimal(startPoint.y).compareTo(new BigDecimal(thePoint.y)) != 0) {
-            // 起点，终点位置不一致
-            Coordinate[] newCoordinates = new Coordinate[coordinates.length + 1];
-            for (int i = 0; i < coordinates.length; i++) {
-                newCoordinates[i] = coordinates[i];
-            }
-            // 将起点作为终点
-            newCoordinates[newCoordinates.length - 1] = new Coordinate(startPoint.x, startPoint.y);
-            return newCoordinates;
-        }
-        return coordinates;
-    }
 }

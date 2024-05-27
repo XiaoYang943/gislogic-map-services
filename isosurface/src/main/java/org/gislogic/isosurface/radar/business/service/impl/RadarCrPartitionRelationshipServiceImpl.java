@@ -4,7 +4,7 @@ import org.gislogic.isosurface.radar.business.entity.RadarCrPartitionRelationshi
 import org.gislogic.isosurface.radar.business.mapper.RadarCrPartitionRelationshipMapper;
 import org.gislogic.isosurface.radar.business.pojo.GridData;
 import org.gislogic.isosurface.radar.business.service.RadarCrPartitionRelationshipService;
-import org.gislogic.isosurface.utils.InputDataProcessUtil;
+import org.gislogic.isosurface.radar.data.RadarDataHelper;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -17,7 +17,7 @@ public class RadarCrPartitionRelationshipServiceImpl implements RadarCrPartition
 
     @Override
     public GridData getTrainingDataByJsonFile(String gridDataJsonFilePath, String charset, String lonFieldName, String latFieldName, String valueFieldName, String configFieldName) throws IOException {
-        return InputDataProcessUtil.getTrainingDataByJsonFile(gridDataJsonFilePath, charset, lonFieldName, latFieldName, valueFieldName, configFieldName);
+        return RadarDataHelper.getTrainingDataByJsonFile(gridDataJsonFilePath, charset, lonFieldName, latFieldName, valueFieldName, configFieldName);
     }
 
     @Override

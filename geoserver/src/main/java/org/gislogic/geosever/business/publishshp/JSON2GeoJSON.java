@@ -12,8 +12,8 @@ import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.referencing.GeodeticCalculator;
 import org.gislogic.common.utils.converter.CoordinateConverter;
 import org.gislogic.common.utils.converter.DataFormatConverter;
-import org.gislogic.common.utils.geom.BuildGeometryUtil;
-import org.gislogic.common.utils.validator.DataQualityInspectionUtil;
+import org.gislogic.common.utils.geom.GeometryBuilder;
+import org.gislogic.common.utils.geom.GeometryValidator;
 import org.locationtech.jts.geom.*;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -381,7 +381,7 @@ public class JSON2GeoJSON {
                     double longitude = cpoint.getDouble(CommonEnum.LONGITUDE);
                     double latitude = cpoint.getDouble(CommonEnum.LATITUDE);
                     Double width = jsonFeature.getJSONObject("rect").getDouble("width") / 2;    // 单位：米
-                    Geometry buffer4326 = BuildGeometryUtil.buildCircle(longitude, latitude, width, CommonEnum.DEFAULT_ELLIPSE_NSIDES);
+                    Geometry buffer4326 = GeometryBuilder.buildCircle(longitude, latitude, width, CommonEnum.DEFAULT_ELLIPSE_NSIDES);
                     Coordinate[] coordinates = buffer4326.getCoordinates();
                     LineString lineString = geometryFactory.createLineString(coordinates);
                     featureBuilder.set(allGeoJsonPropertiesSet.size(), lineString);
@@ -389,19 +389,18 @@ public class JSON2GeoJSON {
             } else if (geometryType.equals(CommonEnum.DEFAULT_TYPE_POLYGON)) {
                 JSONArray points = jsonFeature.getJSONArray(CommonEnum.DEFAULT_TYPE_POINT);
                 List<Coordinate> coordinates = pointsJSONArray2CoordinatesList(points);
-                if (DataQualityInspectionUtil.fixPolygonCoordinates(coordinates)) {
-                    List<Coordinate> reversed = DataQualityInspectionUtil.reversePolygonListToFollowRightHandRule(coordinates);
-                    Coordinate[] array = reversed.toArray(new Coordinate[reversed.size()]);
-                    Polygon polygon = geometryFactory.createPolygon(array);
-                    featureBuilder.set(allGeoJsonPropertiesSet.size(), polygon);
-                }
+                coordinates = GeometryValidator.fixPolygonCoordinates(coordinates);
+                List<Coordinate> reversed = GeometryValidator.reversePolygonListToFollowRightHandRule(coordinates);
+                Coordinate[] array = reversed.toArray(new Coordinate[0]);
+                Polygon polygon = geometryFactory.createPolygon(array);
+                featureBuilder.set(allGeoJsonPropertiesSet.size(), polygon);
             } else if (geometryType.equals(CommonEnum.DEFAULT_TYPE_ARC3)) {
                 JSONArray points = jsonFeature.getJSONArray(CommonEnum.DEFAULT_TYPE_POINT);
                 Point startPoint = convertPointJson2PointGeo(points.getJSONObject(0));
                 Point controlPoint = convertPointJson2PointGeo(points.getJSONObject(1));
                 Point endPoint = convertPointJson2PointGeo(points.getJSONObject(2));
                 if (startPoint != null && controlPoint != null && endPoint != null) {
-                    LineString cubicBezierCurve = BuildGeometryUtil.buildCubicBezierCurve(startPoint, controlPoint, endPoint, 100);
+                    LineString cubicBezierCurve = GeometryBuilder.buildCubicBezierCurve(startPoint, controlPoint, endPoint, 100);
                     featureBuilder.set(allGeoJsonPropertiesSet.size(), cubicBezierCurve);
                 }
             } else if (geometryType.equals(CommonEnum.DEFAULT_TYPE_ARC)) {
@@ -498,7 +497,7 @@ public class JSON2GeoJSON {
                 controlPointCoordinate.setY(controlPointY);
                 Point controlPoint = geometryFactory.createPoint(controlPointCoordinate);
 
-                LineString cubicBezierCurve = BuildGeometryUtil.buildCubicBezierCurve(point, controlPoint, point1, 100);
+                LineString cubicBezierCurve = GeometryBuilder.buildCubicBezierCurve(point, controlPoint, point1, 100);
                 featureBuilder.set(allGeoJsonPropertiesSet.size(), cubicBezierCurve);
 
                 /**
@@ -529,7 +528,7 @@ public class JSON2GeoJSON {
      * 测试构造arc的中心点的buffer
      */
     private static void testFeatureBuilderSetArcCenterPointBuffer(double longitude, double latitude, GeometryFactory geometryFactory, ArrayList<String> allGeoJsonPropertiesSet, SimpleFeatureBuilder featureBuilder, Double width) {
-        Geometry buffer4326 = BuildGeometryUtil.buildCircle(longitude, latitude, width, CommonEnum.DEFAULT_ELLIPSE_NSIDES);
+        Geometry buffer4326 = GeometryBuilder.buildCircle(longitude, latitude, width, CommonEnum.DEFAULT_ELLIPSE_NSIDES);
         Coordinate[] bufferCoordinates = buffer4326.getCoordinates();
         LineString lineString = geometryFactory.createLineString(bufferCoordinates);
         featureBuilder.set(allGeoJsonPropertiesSet.size(), lineString);

@@ -10,8 +10,9 @@ import org.gislogic.isosurface.radar.business.pojo.GridData;
 import org.gislogic.isosurface.radar.business.pojo.IsosurfaceFeature;
 import org.gislogic.isosurface.radar.business.service.RadarCrPartitionRelationshipService;
 import org.gislogic.isosurface.radar.configuration.RadarDataPostgisConfig;
+import org.gislogic.isosurface.radar.data.RadarDataHelper;
 import org.gislogic.isosurface.radar.enums.RadarColorEnum;
-import org.gislogic.isosurface.utils.InputDataProcessUtil;
+import org.gislogic.isosurface.utils.CalculateIsosurface;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,8 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.File;
 import java.util.ArrayList;
 
-import static org.gislogic.isosurface.utils.CreateIsosurfaceUtil.calculateIsosurface;
-import static org.gislogic.isosurface.utils.CreateIsosurfaceUtil.isosurfaceFeatureList2SimpleFeatureCollection;
+import static org.gislogic.isosurface.radar.data.RadarDataHelper.isosurfaceFeatureList2SimpleFeatureCollection;
 
 
 @RestController
@@ -118,9 +118,9 @@ public class RadarContourController {
 
                     RadarEntity radarEntity = new RadarEntity(null, null, fileTime, dataTime, fileStation);
 
-                    GridData trainData = InputDataProcessUtil.getTrainingDataByJsonFile(path, "UTF-8", "lon", "lat", "value", "config");
+                    GridData trainData = RadarDataHelper.getTrainingDataByJsonFile(path, "UTF-8", "lon", "lat", "value", "config");
                     double[] dataInterval = RadarColorEnum.getValueArray();
-                    ArrayList<IsosurfaceFeature> isosurfaceFeatures = calculateIsosurface(trainData, dataInterval);
+                    ArrayList<IsosurfaceFeature> isosurfaceFeatures = new CalculateIsosurface().calculate(trainData, dataInterval);
 
                     SimpleFeatureCollection simpleFeatureCollection = isosurfaceFeatureList2SimpleFeatureCollection(isosurfaceFeatures, radarEntity);
                     /**
