@@ -31,6 +31,9 @@ public class RadarContourController {
     @Autowired
     RadarCrPartitionRelationshipService radarCrPartitionRelationshipService;
 
+    @Autowired
+    RadarDataPostgisConfig radarDataPostgisConfig;
+
     /**
      * 请求示例
      * {
@@ -131,7 +134,7 @@ public class RadarContourController {
                     radarCrPartitionRelationshipEntity.setRelationshipPrimaryKey(fileTime);
                     radarCrPartitionRelationshipService.createPartitionTable(radarCrPartitionRelationshipEntity);
 //                    给pg分区表写入数据时，报错：org.postgresql.util.PSQLException: ERROR: no partition of relation "radar_cr_zlxy3" found for row 详细：Partition key of the failing row contains (file_time) = (202402010602).
-                    DataStore postgisDataStore = new RadarDataPostgisConfig().getPostgisDataStore();
+                    DataStore postgisDataStore = radarDataPostgisConfig.getPostgisDataStore();
                     boolean testRadar = DataStorageInDatabaseUtil.writeSimpleFeatureCollection2pgByBatch(simpleFeatureCollection, "radar_cr_zlxy3", postgisDataStore, false);
                     System.out.println(testRadar);
 

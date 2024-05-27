@@ -13,12 +13,6 @@ import java.util.Map;
 @ConfigurationProperties(prefix = "postgis.radar")
 @Data
 public class RadarDataPostgisConfig {
-    private static RadarDataPostgisConfig radarDataPostgisConfig;
-
-    static {
-        radarDataPostgisConfig = new RadarDataPostgisConfig();
-    }
-
     private String dbtype;
 
     private String host;
@@ -45,18 +39,18 @@ public class RadarDataPostgisConfig {
 
     public DataStore getPostgisDataStore() {
         Map<String, Object> params = new HashMap<>();
-        params.put(PostgisNGDataStoreFactory.DBTYPE.key, radarDataPostgisConfig.getDbtype());
-        params.put(PostgisNGDataStoreFactory.HOST.key, radarDataPostgisConfig.getHost());
-        params.put(PostgisNGDataStoreFactory.PORT.key, radarDataPostgisConfig.getPort());
-        params.put(PostgisNGDataStoreFactory.DATABASE.key, radarDataPostgisConfig.getDatabase());
-        params.put(PostgisNGDataStoreFactory.SCHEMA.key, radarDataPostgisConfig.getSchema());
-        params.put(PostgisNGDataStoreFactory.USER.key, radarDataPostgisConfig.getUsername());
-        params.put(PostgisNGDataStoreFactory.PASSWD.key, radarDataPostgisConfig.getPassword());
-        params.put(PostgisNGDataStoreFactory.MAXCONN.key, radarDataPostgisConfig.getMaxconn());
-        params.put(PostgisNGDataStoreFactory.MINCONN.key, radarDataPostgisConfig.getMinconn());
-        params.put(PostgisNGDataStoreFactory.MAXWAIT.key, radarDataPostgisConfig.getMaxwait());
-        params.put(PostgisNGDataStoreFactory.EXPOSE_PK.key, radarDataPostgisConfig.getExposePk());
-        params.put(PostgisNGDataStoreFactory.PK_METADATA_TABLE.key, radarDataPostgisConfig.getPkMetadataTable());
+        params.put(PostgisNGDataStoreFactory.DBTYPE.key, this.dbtype);
+        params.put(PostgisNGDataStoreFactory.HOST.key, this.host);
+        params.put(PostgisNGDataStoreFactory.PORT.key, this.port);
+        params.put(PostgisNGDataStoreFactory.DATABASE.key, this.database);
+        params.put(PostgisNGDataStoreFactory.SCHEMA.key, this.schema);
+        params.put(PostgisNGDataStoreFactory.USER.key, this.username);
+        params.put(PostgisNGDataStoreFactory.PASSWD.key, this.password);
+        params.put(PostgisNGDataStoreFactory.MAXCONN.key, this.maxconn);
+        params.put(PostgisNGDataStoreFactory.MINCONN.key, this.minconn);
+        params.put(PostgisNGDataStoreFactory.MAXWAIT.key, this.maxwait);
+        params.put(PostgisNGDataStoreFactory.EXPOSE_PK.key, this.exposePk);
+        params.put(PostgisNGDataStoreFactory.PK_METADATA_TABLE.key, this.pkMetadataTable);
         try {
             return DataStoreFinder.getDataStore(params);
         } catch (IOException e) {
