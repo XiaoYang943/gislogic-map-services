@@ -3,11 +3,11 @@ package org.gislogic.isosurface.radar.business.controller;
 
 import org.geotools.data.DataStore;
 import org.geotools.data.simple.SimpleFeatureCollection;
-import org.geotools.feature.FeatureCollection;
 import org.gislogic.common.utils.database.DataStorageInDatabaseUtil;
 import org.gislogic.isosurface.radar.business.entity.RadarCrPartitionRelationshipEntity;
 import org.gislogic.isosurface.radar.business.entity.RadarEntity;
 import org.gislogic.isosurface.radar.business.pojo.GridData;
+import org.gislogic.isosurface.radar.business.pojo.IsosurfaceFeature;
 import org.gislogic.isosurface.radar.business.service.RadarCrPartitionRelationshipService;
 import org.gislogic.isosurface.radar.configuration.RadarDataPostgisConfig;
 import org.gislogic.isosurface.radar.enums.RadarColorEnum;
@@ -18,8 +18,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.File;
+import java.util.ArrayList;
 
-import static org.gislogic.isosurface.utils.CreateIsosurfaceUtil.equiSurface;
+import static org.gislogic.isosurface.utils.CreateIsosurfaceUtil.calculateIsosurface;
+import static org.gislogic.isosurface.utils.CreateIsosurfaceUtil.isosurfaceFeatureList2SimpleFeatureCollection;
 
 
 @RestController
@@ -115,8 +117,9 @@ public class RadarContourController {
 
                     GridData trainData = InputDataProcessUtil.getTrainingDataByJsonFile(path, "UTF-8", "lon", "lat", "value", "config");
                     double[] dataInterval = RadarColorEnum.getValueArray();
-                    FeatureCollection featureCollection = equiSurface(trainData, dataInterval, radarEntity);
+                    ArrayList<IsosurfaceFeature> isosurfaceFeatures = calculateIsosurface(trainData, dataInterval);
 
+                    SimpleFeatureCollection simpleFeatureCollection = isosurfaceFeatureList2SimpleFeatureCollection(isosurfaceFeatures, radarEntity);
                     /**
                      * 每次写入数据之前建表
                      * 也可以写定时任务，每天建后七天的表，删前三天的表
@@ -129,7 +132,7 @@ public class RadarContourController {
                     radarCrPartitionRelationshipService.createPartitionTable(radarCrPartitionRelationshipEntity);
 //                    给pg分区表写入数据时，报错：org.postgresql.util.PSQLException: ERROR: no partition of relation "radar_cr_zlxy3" found for row 详细：Partition key of the failing row contains (file_time) = (202402010602).
                     DataStore postgisDataStore = new RadarDataPostgisConfig().getPostgisDataStore();
-                    boolean testRadar = DataStorageInDatabaseUtil.writeSimpleFeatureCollection2pgByBatch((SimpleFeatureCollection) featureCollection, "radar_cr_zlxy3", postgisDataStore, false);
+                    boolean testRadar = DataStorageInDatabaseUtil.writeSimpleFeatureCollection2pgByBatch(simpleFeatureCollection, "radar_cr_zlxy3", postgisDataStore, false);
                     System.out.println(testRadar);
 
                 }

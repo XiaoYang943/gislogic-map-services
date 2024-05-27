@@ -18,6 +18,7 @@ import org.geotools.styling.Stroke;
 import org.geotools.styling.*;
 import org.gislogic.isosurface.radar.business.entity.RadarEntity;
 import org.gislogic.isosurface.radar.business.pojo.GridData;
+import org.gislogic.isosurface.radar.business.pojo.IsosurfaceFeature;
 import org.gislogic.isosurface.radar.enums.ConstantEnum;
 import org.gislogic.isosurface.radar.enums.RadarColorEnum;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -30,7 +31,11 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Map;
+
+import static org.gislogic.isosurface.utils.CreateIsosurfaceUtil.calculateIsosurface;
+import static org.gislogic.isosurface.utils.CreateIsosurfaceUtil.isosurfaceFeatureList2SimpleFeatureCollection;
 
 
 public class RadarContourUtil {
@@ -43,14 +48,16 @@ public class RadarContourUtil {
         // 数据分层级别(数据间隙)
         double[] dataInterval = RadarColorEnum.getValueArray();
         RadarEntity radarEntity = new RadarEntity(null, null, null, null, null);
-        SimpleFeatureCollection featureCollection = CreateIsosurfaceUtil.equiSurface(trainData, dataInterval, radarEntity);
+        ArrayList<IsosurfaceFeature> isosurfaceFeatures = calculateIsosurface(trainData, dataInterval);
+
+        SimpleFeatureCollection simpleFeatureCollection = isosurfaceFeatureList2SimpleFeatureCollection(isosurfaceFeatures, radarEntity);
 
         try {
             // 输出图片
             float opacity = 1f;
             Map<Double, String> levelProps = RadarColorEnum.getValueColorMap();
-            Layer layer = featureCollection2Layer(featureCollection, levelProps, opacity);
-            ReferencedEnvelope bounds = featureCollection.getBounds();
+            Layer layer = featureCollection2Layer(simpleFeatureCollection, levelProps, opacity);
+            ReferencedEnvelope bounds = simpleFeatureCollection.getBounds();
             double[] bbox = {bounds.getMinX(), bounds.getMinY(), bounds.getMaxX(), bounds.getMaxY()};
             int[] _xy = {1000, 800};
             String imgPath = "src/main/resources/data/contour/output/result_0.01.png";

@@ -1,12 +1,14 @@
 package org.gislogic.isosurface.utils;
 
 
+import cn.hutool.core.date.TimeInterval;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.gislogic.common.utils.feature.SimpleFeatureHelper;
 import org.gislogic.isosurface.radar.business.entity.RadarEntity;
 import org.gislogic.isosurface.radar.business.pojo.GridData;
+import org.gislogic.isosurface.radar.business.pojo.IsosurfaceFeature;
 import org.gislogic.isosurface.radar.enums.RadarColorEnum;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -18,6 +20,7 @@ import wcontour.global.PointD;
 import wcontour.global.PolyLine;
 import wcontour.global.Polygon;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -37,7 +40,7 @@ public class CreateIsosurfaceUtil {
      * @date 2024-03-09
      * @author hyy
      **/
-    public static SimpleFeatureCollection equiSurface(GridData gridData, double[] dataInterval, RadarEntity radarEntity) {
+    public static ArrayList<IsosurfaceFeature> calculateIsosurface(GridData gridData, double[] dataInterval) {
         double[][] _gridData = gridData.getData();
         double[] _X = gridData.get_X();
         double[] _Y = gridData.get_Y();
@@ -53,7 +56,32 @@ public class CreateIsosurfaceUtil {
 
         List<Polygon> contourPolygonList = Contour.tracingPolygons(_gridData, cPolylineList, _borders, dataInterval); // 生成等值面
 
-        return wContourPolygonList2FeatureCollection(contourPolygonList, radarEntity);    // 等值面结果转换
+        return wContourPolygonList2FeatureCollection(contourPolygonList);    // 等值面结果转换
+    }
+
+    public static SimpleFeatureCollection isosurfaceFeatureList2SimpleFeatureCollection(List<IsosurfaceFeature> featureList, RadarEntity radarEntity) {
+        SimpleFeatureBuilder simpleFeatureBuilder = SimpleFeatureHelper.createSimpleFeatureBuilder(radarEntity.getClass());
+        DefaultFeatureCollection collection = new DefaultFeatureCollection();
+
+        for (IsosurfaceFeature isosurfaceFeature : featureList) {
+            double value = isosurfaceFeature.getValue();
+            org.locationtech.jts.geom.Polygon polygon = isosurfaceFeature.getPolygon();
+            if (value >= RadarColorEnum.getMinValue() && value <= RadarColorEnum.getMaxValue()) {
+                /**
+                 * add的顺序要和实体类的字段顺序保持一致
+                 */
+                simpleFeatureBuilder.add(polygon);
+                simpleFeatureBuilder.add(value);
+                simpleFeatureBuilder.add(radarEntity.getFile_time());
+                simpleFeatureBuilder.add(radarEntity.getData_time());
+                simpleFeatureBuilder.add(radarEntity.getFile_station());
+
+                SimpleFeature feature = simpleFeatureBuilder.buildFeature(null);
+                collection.add(feature);
+            }
+
+        }
+        return collection;
     }
 
     /**
@@ -64,13 +92,13 @@ public class CreateIsosurfaceUtil {
      * @date 2024-03-09
      * @author hyy
      **/
-    public static SimpleFeatureCollection wContourPolygonList2FeatureCollection(List<Polygon> contourPolygonList, RadarEntity radarEntity) {
+    public static ArrayList<IsosurfaceFeature> wContourPolygonList2FeatureCollection(List<Polygon> contourPolygonList) {
+        final TimeInterval timer = new TimeInterval();
         if (contourPolygonList == null || contourPolygonList.size() == 0) {
             return null;
         }
-        SimpleFeatureBuilder simpleFeatureBuilder = SimpleFeatureHelper.createSimpleFeatureBuilder(radarEntity.getClass());
-        DefaultFeatureCollection collection = new DefaultFeatureCollection();
 
+        ArrayList<IsosurfaceFeature> isosurfaceFeatureList = new ArrayList<>();
         for (Polygon pPolygon : contourPolygonList) {
             // 外圈
             Coordinate[] coordinates = new Coordinate[pPolygon.OutLine.PointList.size()];
@@ -94,22 +122,12 @@ public class CreateIsosurfaceUtil {
 
             org.locationtech.jts.geom.Polygon polygon = geometryFactory.createPolygon(mainRing, holeRing);
 
-            // TODO-hyy:解耦
-            if (pPolygon.LowValue >= RadarColorEnum.getMinValue() && pPolygon.LowValue <= RadarColorEnum.getMaxValue()) {
-                /**
-                 * add的顺序要和实体类的字段顺序保持一致
-                 */
-                simpleFeatureBuilder.add(polygon);
-                simpleFeatureBuilder.add(pPolygon.LowValue);
-                simpleFeatureBuilder.add(radarEntity.getFile_time());
-                simpleFeatureBuilder.add(radarEntity.getData_time());
-                simpleFeatureBuilder.add(radarEntity.getFile_station());
-
-                SimpleFeature feature = simpleFeatureBuilder.buildFeature(null);
-                collection.add(feature);
-            }
+            IsosurfaceFeature isosurfaceFeature = new IsosurfaceFeature();
+            isosurfaceFeature.setPolygon(polygon);
+            isosurfaceFeature.setValue(pPolygon.LowValue);
+            isosurfaceFeatureList.add(isosurfaceFeature);
         }
-        return collection;
+        return isosurfaceFeatureList;
     }
 
 }
