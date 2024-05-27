@@ -1,6 +1,7 @@
 package org.gislogic.isosurface.utils;
 
 
+import org.gislogic.isosurface.radar.enums.ConstantEnum;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Polygon;
 
@@ -47,8 +48,8 @@ public class FeatureExceptionHand {
      */
     private static Map<String, Object> contactPolygon(Map<String, Object> map, Set<Integer> isUnionSet,
                                                       List<Map<String, Object>> geometryMapList) {
-        Double value = (double) map.get(ContourConstant.VALUE);
-        Polygon polygon = (Polygon) map.get(ContourConstant.THE_GEOM);
+        Double value = (double) map.get(ConstantEnum.VALUE);
+        Polygon polygon = (Polygon) map.get(ConstantEnum.THE_GEOM);
         if (!polygon.isValid()) {
             // 无效不进行下一步
             return map;
@@ -61,11 +62,11 @@ public class FeatureExceptionHand {
                 // 同一个面不合并判断
                 continue;
             }
-            if (!value.equals(unionMap.get(ContourConstant.VALUE))) {
+            if (!value.equals(unionMap.get(ConstantEnum.VALUE))) {
                 // 不等值
                 continue;
             }
-            Polygon unionPolygon = (Polygon) unionMap.get(ContourConstant.THE_GEOM);
+            Polygon unionPolygon = (Polygon) unionMap.get(ConstantEnum.THE_GEOM);
             if (!unionPolygon.isValid()) {
                 // 无效不进行下一步
                 continue;
@@ -82,8 +83,8 @@ public class FeatureExceptionHand {
                 polygon.union(unionPolygon);
                 isUnionSet.add(unionMap.hashCode());
                 Map<String, Object> item = new HashMap<>();
-                item.put(ContourConstant.VALUE, value);
-                item.put(ContourConstant.THE_GEOM, polygon);
+                item.put(ConstantEnum.VALUE, value);
+                item.put(ConstantEnum.THE_GEOM, polygon);
                 // 继续寻找能合并的等值面
                 contactPolygon(item, isUnionSet, geometryMapList);
                 return item;
@@ -107,12 +108,12 @@ public class FeatureExceptionHand {
     private static boolean otherValueWithin(Polygon polygon, Double value, int hashCode,
                                             List<Map<String, Object>> geometryMapList) {
         for (Map<String, Object> map : geometryMapList) {
-            Polygon p = (Polygon) map.get(ContourConstant.THE_GEOM);
+            Polygon p = (Polygon) map.get(ConstantEnum.THE_GEOM);
             if (Objects.equals(hashCode, map.hashCode())) {
                 continue;
             }
             try {
-                if (!value.equals(map.get(ContourConstant.VALUE)) && polygon.within(p)) {
+                if (!value.equals(map.get(ConstantEnum.VALUE)) && polygon.within(p)) {
                     return true;
                 }
             } catch (Exception e) {

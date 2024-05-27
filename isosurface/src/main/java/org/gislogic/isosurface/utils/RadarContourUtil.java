@@ -16,7 +16,10 @@ import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.renderer.lite.StreamingRenderer;
 import org.geotools.styling.Stroke;
 import org.geotools.styling.*;
-import org.gislogic.isosurface.business.domain.RadarTrainDataEntity;
+import org.gislogic.isosurface.radar.business.entity.RadarEntity;
+import org.gislogic.isosurface.radar.business.pojo.GridData;
+import org.gislogic.isosurface.radar.enums.ConstantEnum;
+import org.gislogic.isosurface.radar.enums.RadarColorEnum;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory;
@@ -35,7 +38,7 @@ public class RadarContourUtil {
 
     public static void main(String[] args) throws SchemaException, IOException {
         // 读取雷达格网json
-        RadarTrainDataEntity trainData = InputDataProcessUtil.getTrainingDataByJsonFile("src/main/resources/data/contour/input/wContourData_0.01.json", "UTF-8", "lon", "lat", "value", "config");
+        GridData trainData = InputDataProcessUtil.getTrainingDataByJsonFile("C:\\Users\\heyiyang\\IdeaProjects\\gislogic-map-services\\isosurface\\src\\main\\resources\\data\\contour\\input\\wContourData_0.02.json", "UTF-8", "lon", "lat", "value", "config");
 
         // 数据分层级别(数据间隙)
         double[] dataInterval = RadarColorEnum.getValueArray();
@@ -119,7 +122,7 @@ public class RadarContourUtil {
                 String value = (String) entry.getValue();
                 Fill fill = sf.createFill(ff.literal(value), ff.literal(opacity));
                 Stroke stroke = sf.createStroke(ff.literal("#ffffff"), ff.literal(0), ff.literal(0));
-                Symbolizer symbolizer = sf.createPolygonSymbolizer(stroke, fill, ContourConstant.THE_GEOM);
+                Symbolizer symbolizer = sf.createPolygonSymbolizer(stroke, fill, ConstantEnum.THE_GEOM);
                 Rule rule = sf.createRule();
                 rule.setName("dzm_" + key);
                 rule.symbolizers().add(symbolizer);
@@ -146,7 +149,7 @@ public class RadarContourUtil {
      * @param trainData 返回对象 data数组为[y][x]
      * @param rarefy    抽稀倍数
      */
-    private static void rarefy(TrainData trainData, int rarefy) {
+    private static void rarefy(GridData trainData, int rarefy) {
         if (rarefy <= 1) {
             return;
         }

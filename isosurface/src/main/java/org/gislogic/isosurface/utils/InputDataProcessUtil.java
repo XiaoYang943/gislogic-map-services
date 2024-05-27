@@ -1,10 +1,11 @@
 package org.gislogic.isosurface.utils;
 
 
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import org.gislogic.isosurface.business.domain.RadarTrainDataEntity;
+import org.gislogic.isosurface.radar.business.pojo.GridData;
 
 import java.io.File;
 import java.nio.charset.Charset;
@@ -41,10 +42,9 @@ public class InputDataProcessUtil {
      * }
      * }
      **/
-    public static RadarTrainDataEntity getTrainingDataByJsonFile(String gridDataJsonFilePath, String charset, String lonFieldName, String latFieldName, String valueFieldName, String configFieldName) {
+    public static GridData getTrainingDataByJsonFile(String gridDataJsonFilePath, String charset, String lonFieldName, String latFieldName, String valueFieldName, String configFieldName) {
 
-        File file = new File(gridDataJsonFilePath);
-
+        File file = FileUtil.newFile(gridDataJsonFilePath);
         JSONObject jsonObject = JSONUtil.readJSONObject(file, Charset.forName(charset));
 
         JSONArray lonArray = jsonObject.getJSONArray(lonFieldName);
@@ -82,13 +82,13 @@ public class InputDataProcessUtil {
 
         double[][] trainDataConverted = convertTrainData(trainData);
 
-        RadarTrainDataEntity trainDataResult = new RadarTrainDataEntity();
-        trainDataResult.setData(trainDataConverted);
-        trainDataResult.set_X(X);
-        trainDataResult.set_Y(Y);
-        trainDataResult.setSize(size);
+        GridData gridData = new GridData();
+        gridData.setData(trainDataConverted);
+        gridData.set_X(X);
+        gridData.set_Y(Y);
+        gridData.setSize(size);
 //        trainDataResult.setConfig(configObject);
-        return trainDataResult;
+        return gridData;
     }
 
     /**

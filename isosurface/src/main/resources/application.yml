@@ -15,18 +15,19 @@ mybatis-plus:
       logic-delete-value: 1
       logic-not-delete-value: 0
 postgis:
-  dbtype: postgis
-  host: localhost
-  port: 5432
-  database: postgres
-  schema: gis_radar
-  username: postgres
-  password: postgres
-  maxconn: 50
-  minconn: 1
-  maxwait: 5
-  exposePk: true
-  pkMetadataTable: gis_radar.gt_pk_metadata
+  radar:
+    dbtype: postgis
+    host: localhost
+    port: 5432
+    database: postgres
+    schema: gis_radar
+    username: postgres
+    password: postgres
+    maxconn: 50
+    minconn: 1
+    maxwait: 5
+    exposePk: true
+    pkMetadataTable: gis_radar.gt_pk_metadata
 
 
 
