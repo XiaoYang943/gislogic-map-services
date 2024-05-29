@@ -1,10 +1,11 @@
-package org.gislogic.isosurface.radar.configuration;
+package org.gislogic.isosurface.radar.config;
 
 import lombok.Data;
 import org.geotools.api.data.DataStore;
 import org.geotools.api.data.DataStoreFinder;
 import org.geotools.data.postgis.PostgisNGDataStoreFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -12,6 +13,7 @@ import java.util.Map;
 
 @ConfigurationProperties(prefix = "postgis.radar")
 @Data
+@Component
 public class RadarDataPostgisConfig {
     private String dbtype;
 

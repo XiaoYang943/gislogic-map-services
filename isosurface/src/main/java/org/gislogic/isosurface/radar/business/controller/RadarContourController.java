@@ -9,7 +9,7 @@ import org.gislogic.isosurface.radar.business.entity.RadarEntity;
 import org.gislogic.isosurface.radar.business.pojo.GridData;
 import org.gislogic.isosurface.radar.business.pojo.IsosurfaceFeature;
 import org.gislogic.isosurface.radar.business.service.RadarCrPartitionRelationshipService;
-import org.gislogic.isosurface.radar.configuration.RadarDataPostgisConfig;
+import org.gislogic.isosurface.radar.config.RadarDataPostgisConfig;
 import org.gislogic.isosurface.radar.data.RadarDataHelper;
 import org.gislogic.isosurface.radar.enums.RadarColorEnum;
 import org.gislogic.isosurface.utils.CalculateIsosurface;

@@ -1,0 +1,9 @@
+geoserver:
+  url: http://iapp.hcso.bellavitech.com:8080/geoserver
+  username: admin
+  password: fG0vW5uI4xI8pL6yX2
+  icon-url: /styles/markericon/
+
+
+
+

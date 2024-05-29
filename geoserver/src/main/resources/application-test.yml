@@ -1,0 +1,10 @@
+geoserver:
+  url: http://demo.dev.bellavitech.com:7801/geoserver
+  username: admin
+  password: geoserver
+  icon-url: /styles/markericon/
+
+
+
+
+

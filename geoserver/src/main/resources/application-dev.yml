@@ -1,0 +1,8 @@
+geoserver:
+  url: http://localhost:8901/geoserver
+  username: admin
+  password: geoserver
+  icon-url: /styles/markericon/
+
+
+
