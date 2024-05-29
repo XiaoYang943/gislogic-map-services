@@ -1,7 +1,7 @@
 package org.gislogic.isosurface.radar.business.controller;
 
 
-import org.geotools.data.DataStore;
+import org.geotools.api.data.DataStore;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.gislogic.common.utils.database.DataStorageInDatabaseUtil;
 import org.gislogic.isosurface.radar.business.entity.RadarCrPartitionRelationshipEntity;

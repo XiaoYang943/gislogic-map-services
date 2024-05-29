@@ -1,5 +1,8 @@
 package org.gislogic.mvt.vectortile.controller;
 
+import org.geotools.api.feature.simple.SimpleFeature;
+import org.geotools.api.feature.simple.SimpleFeatureType;
+import org.geotools.api.feature.type.AttributeDescriptor;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.gislogic.common.utils.converter.DataFormatConverter;
@@ -7,8 +10,6 @@ import org.gislogic.mvt.vectortile.core.MapboxVectorTileBuilder;
 import org.gislogic.mvt.vectortile.core.MapboxVectorTileLayer;
 import org.gislogic.mvt.vectortile.pojo.CustomFeature;
 import org.locationtech.jts.geom.Geometry;
-import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.feature.type.AttributeDescriptor;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,7 +37,7 @@ public class MapboxVectorTileController {
         SimpleFeatureCollection featureCollection = DataFormatConverter.convertGeoJSON2SimpleFeatureCollection("C:\\Users\\13522\\IdeaProjects\\map-services\\mvt\\src\\main\\resources\\china.json");
         SimpleFeatureIterator iterator = featureCollection.features();
         while (iterator.hasNext()) {    // 遍历源数据的每一个 Feature
-            org.opengis.feature.simple.SimpleFeature simpleFeature = iterator.next();
+            SimpleFeature simpleFeature = iterator.next();
             List<Object> attributes = simpleFeature.getAttributes();
             SimpleFeatureType featureType = simpleFeature.getFeatureType();
             List<AttributeDescriptor> attributeDescriptors = featureType.getAttributeDescriptors();

@@ -1,6 +1,11 @@
 package org.gislogic.isosurface.utils;
 
-
+import org.geotools.api.feature.simple.SimpleFeatureType;
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.FilterFactory;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.style.Stroke;
+import org.geotools.api.style.*;
 import org.geotools.data.crs.ForceCoordinateSystemFeatureResults;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.FeatureCollection;
@@ -14,18 +19,13 @@ import org.geotools.map.MapContent;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.geotools.renderer.lite.StreamingRenderer;
-import org.geotools.styling.Stroke;
-import org.geotools.styling.*;
+import org.geotools.styling.StyleFactoryImpl;
 import org.gislogic.isosurface.radar.business.entity.RadarEntity;
 import org.gislogic.isosurface.radar.business.pojo.GridData;
 import org.gislogic.isosurface.radar.business.pojo.IsosurfaceFeature;
 import org.gislogic.isosurface.radar.data.RadarDataHelper;
 import org.gislogic.isosurface.radar.enums.ConstantEnum;
 import org.gislogic.isosurface.radar.enums.RadarColorEnum;
-import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.filter.Filter;
-import org.opengis.filter.FilterFactory;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import javax.imageio.ImageIO;
 import java.awt.*;

@@ -1,8 +1,8 @@
 package org.gislogic.isosurface.radar.configuration;
 
 import lombok.Data;
-import org.geotools.data.DataStore;
-import org.geotools.data.DataStoreFinder;
+import org.geotools.api.data.DataStore;
+import org.geotools.api.data.DataStoreFinder;
 import org.geotools.data.postgis.PostgisNGDataStoreFactory;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
