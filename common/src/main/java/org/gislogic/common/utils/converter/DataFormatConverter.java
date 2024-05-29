@@ -389,7 +389,7 @@ public class DataFormatConverter {
                     try {
                         FileOutputStream fos = new FileOutputStream(outPutDirectoryPath + File.separator + zipFileName);
                         ZipOutputStream zipOut = new ZipOutputStream(fos);
-                        File[] relatedFiles = directory.listFiles((dir, name) -> name.startsWith(shapefilePrefix));
+                        File[] relatedFiles = directory.listFiles((dir, name) -> name.substring(0, name.lastIndexOf('.')).equals(shapefilePrefix));
                         if (relatedFiles != null) {
                             for (File relatedFile : relatedFiles) {
                                 if (!relatedFile.getName().endsWith(".zip")) {
