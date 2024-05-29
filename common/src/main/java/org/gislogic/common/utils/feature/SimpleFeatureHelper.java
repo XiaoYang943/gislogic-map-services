@@ -1,8 +1,8 @@
 package org.gislogic.common.utils.feature;
 
+import org.geotools.api.feature.simple.SimpleFeatureType;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;

@@ -4,15 +4,14 @@ package org.gislogic.geosever.business.publishshp;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import org.geotools.api.filter.Filter;
+import org.geotools.api.filter.FilterFactory;
+import org.geotools.api.style.Font;
+import org.geotools.api.style.Stroke;
+import org.geotools.api.style.*;
 import org.geotools.factory.CommonFactoryFinder;
-import org.geotools.styling.Font;
-import org.geotools.styling.Stroke;
-import org.geotools.styling.*;
 import org.geotools.xml.styling.SLDTransformer;
 import org.gislogic.common.utils.style.SymbolStyleUtil;
-import org.opengis.filter.Filter;
-import org.opengis.filter.FilterFactory;
-import org.opengis.filter.FilterFactory2;
 
 import javax.xml.transform.TransformerException;
 import java.awt.*;
@@ -29,7 +28,6 @@ public class CreateSLDByGeoJSON {
 
     private static final StyleFactory styleFactory = CommonFactoryFinder.getStyleFactory();
     private static final FilterFactory filterFactory = CommonFactoryFinder.getFilterFactory();
-    private static final FilterFactory2 filterFactory2 = CommonFactoryFinder.getFilterFactory2();
 
     public static void recursiveTraversalFolders(String inputFolderPath, String outputFolderPath) {
         File file = new File(inputFolderPath);
@@ -160,7 +158,7 @@ public class CreateSLDByGeoJSON {
         }
 
         FeatureTypeStyle fts = styleFactory.createFeatureTypeStyle();
-//        Fill fill = styleFactory.createFill(filterFactory2.literal(Color.CYAN),filterFactory2.literal(1.0f));
+//        Fill fill = styleFactory.createFill(filterFactory.literal(Color.CYAN),filterFactory.literal(1.0f));
 
         Rule rule = styleFactory.createRule();
         PolygonSymbolizer polygonSymbolizer = styleFactory.createPolygonSymbolizer(stroke, fill, null);
@@ -206,15 +204,15 @@ public class CreateSLDByGeoJSON {
 
     private static FeatureTypeStyle createTextStyle(JSONObject properties) {
         int pencolor = properties.getInt("pencolor");
-        Fill fill = styleFactory.createFill(filterFactory2.literal(pencolor));
+        Fill fill = styleFactory.createFill(filterFactory.literal(pencolor));
         Rule rule = styleFactory.createRule();
 
         String customId = properties.getStr(CommonEnum.CUSTOMID);
         Filter filter = filterFactory.equals(filterFactory.property(CommonEnum.CUSTOMID), filterFactory.literal(customId));
 
-        Font font = styleFactory.createFont(filterFactory2.literal(CommonEnum.DEFAULT_FONT_FAMILY), filterFactory2.literal("Regular"), filterFactory2.literal("normal"), filterFactory2.literal(CommonEnum.DEFAULT_FONT_SIZE));
+        Font font = styleFactory.createFont(filterFactory.literal(CommonEnum.DEFAULT_FONT_FAMILY), filterFactory.literal("Regular"), filterFactory.literal("normal"), filterFactory.literal(CommonEnum.DEFAULT_FONT_SIZE));
         TextSymbolizer textSymbolizer = styleFactory.createTextSymbolizer();
-        textSymbolizer.setLabel(filterFactory2.property("string"));   // 标签的文本关联的字段名
+        textSymbolizer.setLabel(filterFactory.property("string"));   // 标签的文本关联的字段名
         textSymbolizer.setFill(fill);
         textSymbolizer.setFont(font);
         rule.setFilter(filter);

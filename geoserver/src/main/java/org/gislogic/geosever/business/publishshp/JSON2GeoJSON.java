@@ -5,6 +5,8 @@ import cn.hutool.core.lang.Console;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import org.geotools.api.feature.simple.SimpleFeature;
+import org.geotools.api.feature.simple.SimpleFeatureType;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.feature.DefaultFeatureCollection;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
@@ -15,8 +17,6 @@ import org.gislogic.common.utils.converter.DataFormatConverter;
 import org.gislogic.common.utils.geom.GeometryBuilder;
 import org.gislogic.common.utils.geom.GeometryValidator;
 import org.locationtech.jts.geom.*;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
 
 import java.awt.geom.Point2D;
 import java.io.File;

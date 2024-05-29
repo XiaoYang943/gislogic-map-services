@@ -1,22 +1,21 @@
 package org.gislogic.common.utils.database;
 
-import org.geotools.data.DataStore;
+import org.geotools.api.data.DataStore;
+import org.geotools.api.data.FeatureWriter;
+import org.geotools.api.data.SimpleFeatureStore;
+import org.geotools.api.data.Transaction;
+import org.geotools.api.feature.Property;
+import org.geotools.api.feature.simple.SimpleFeature;
+import org.geotools.api.feature.simple.SimpleFeatureType;
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
 import org.geotools.data.DefaultTransaction;
-import org.geotools.data.FeatureWriter;
-import org.geotools.data.Transaction;
 import org.geotools.data.collection.ListFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
-import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
-import org.opengis.feature.Property;
-import org.opengis.feature.simple.SimpleFeature;
-import org.opengis.feature.simple.SimpleFeatureType;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.NoSuchAuthorityCodeException;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -53,8 +52,6 @@ public class DataStorageInDatabaseUtil {
                     CoordinateReferenceSystem decode = CRS.decode("EPSG:4326");
                     typeBuilder.setCRS(decode);
                     // typeBuilder.setCRS(DefaultGeographicCRS.WGS84);
-                } catch (NoSuchAuthorityCodeException e) {
-                    throw new RuntimeException(e);
                 } catch (FactoryException e) {
                     throw new RuntimeException(e);
                 }

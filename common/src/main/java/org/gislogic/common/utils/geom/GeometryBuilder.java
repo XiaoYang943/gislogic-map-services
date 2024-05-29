@@ -1,16 +1,16 @@
 package org.gislogic.common.utils.geom;
 
 
+import org.geotools.api.referencing.FactoryException;
+import org.geotools.api.referencing.crs.CRSAuthorityFactory;
+import org.geotools.api.referencing.crs.CoordinateReferenceSystem;
+import org.geotools.api.referencing.operation.MathTransform;
+import org.geotools.api.referencing.operation.TransformException;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
 import org.gislogic.common.utils.converter.CoordinateConverter;
 import org.locationtech.jts.geom.*;
 import org.locationtech.jts.util.GeometricShapeFactory;
-import org.opengis.referencing.FactoryException;
-import org.opengis.referencing.crs.CRSAuthorityFactory;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
-import org.opengis.referencing.operation.TransformException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,16 +36,16 @@ public class GeometryBuilder {
     public static Geometry buildCircle(double longitude, double latitude, double radius, Integer circleSides) {
         Coordinate circleCenterPointCoord = new Coordinate(longitude, latitude);
         Point circleCenterPoint = geometryFactory.createPoint(circleCenterPointCoord);  // 圆心点
-        CRSAuthorityFactory factory = CRS.getAuthorityFactory(true);
+        CRSAuthorityFactory authorityFactory = CRS.getAuthorityFactory(true);
         try {
-            CoordinateReferenceSystem crs4326 = factory.createCoordinateReferenceSystem("EPSG:4326");
-            CoordinateReferenceSystem crs3857 = factory.createCoordinateReferenceSystem("EPSG:3857");
+            CoordinateReferenceSystem crs4326 = authorityFactory.createCoordinateReferenceSystem("EPSG:4326");
+            CoordinateReferenceSystem crs3857 = authorityFactory.createCoordinateReferenceSystem("EPSG:3857");
             MathTransform transformTo3857 = CRS.findMathTransform(crs4326, crs3857);
             Geometry circleCenterPoint3857 = JTS.transform(circleCenterPoint, transformTo3857);
             Geometry buffer3857 = circleCenterPoint3857.buffer(radius, circleSides);  // buffer计算缓冲区圆，传入的半径的单位是：米
             MathTransform transformTo4326 = CRS.findMathTransform(crs3857, crs4326);
             return JTS.transform(buffer3857, transformTo4326);    // 再将计算出的 buffer 圆转换为4326;
-        } catch (FactoryException | TransformException e) {
+        } catch (TransformException | FactoryException e) {
             throw new RuntimeException(e);
         }
     }

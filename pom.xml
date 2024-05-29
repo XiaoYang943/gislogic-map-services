@@ -26,7 +26,7 @@
            29.0是java11第一个版本
            详情见github源码-pom-搜索:`Java compiler`
         -->
-        <geotools.version>29.0</geotools.version>
+        <geotools.version>31.1</geotools.version>
         <wContour.version>1.7.0</wContour.version>
         <hutool.version>5.8.16</hutool.version>
         <jts.version>1.19.0</jts.version>
