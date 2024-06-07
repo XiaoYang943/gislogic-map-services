@@ -68,6 +68,32 @@ public class CoordinateConverter {
         return new BigDecimal(result).setScale(6, BigDecimal.ROUND_HALF_UP).doubleValue();  // 保留6位小数，四舍五入
     }
 
+    /**
+     * E107°58′16″ 转为 E1075816
+     *
+     * @param dms
+     * @return
+     */
+    public static String convertDMStoString(String dms) {
+        // 移除度分秒符号并替换为空格
+        String cleaned = dms.replaceAll("[°′″]", " ").trim();
+
+        // 分割字符串为度、分、秒
+        String[] parts = cleaned.split("\\s+");
+
+        // 验证是否包含三个部分
+        if (parts.length != 3) {
+            throw new IllegalArgumentException("Invalid DMS format: " + dms);
+        }
+
+        // 如果分钟或秒不足两位，则在前面补零
+        String degrees = parts[0];
+        String minutes = parts.length > 1 ? String.format("%02d", Integer.parseInt(parts[1])) : "00";
+        String seconds = parts.length > 2 ? String.format("%02d", Integer.parseInt(parts[2])) : "00";
+
+        return degrees + minutes + seconds;
+    }
+
     //坐标转换(基于矢量 Geometry)
     public static Geometry transformGeometryCRSBySRID(Geometry srcGeom, String srcEpsgId, String dstEpsgId) {
         try {
