@@ -14,6 +14,7 @@
         <module>kmz</module>
         <module>geoserver</module>
         <module>mvt</module>
+        <module>demo</module>
     </modules>
     <properties>
         <java.version>11</java.version>
