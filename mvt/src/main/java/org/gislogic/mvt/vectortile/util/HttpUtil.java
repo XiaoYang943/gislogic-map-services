@@ -1,4 +1,4 @@
-package org.gislogic.mvt.vectortile.core;
+package org.gislogic.mvt.vectortile.util;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;

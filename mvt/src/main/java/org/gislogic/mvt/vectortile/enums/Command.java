@@ -16,7 +16,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  ****************************************************************/
-package org.gislogic.mvt.vectortile.core;
+package org.gislogic.mvt.vectortile.enums;
 
 public final class Command {
 
@@ -34,9 +34,5 @@ public final class Command {
      * ClosePath: 7. (no parameters follow)
      */
     public static final int ClosePath = 7;
-
-    private Command() {
-
-    }
 
 }

@@ -5,6 +5,7 @@ import org.gislogic.common.utils.converter.Tile2Wgs84;
 import org.gislogic.common.utils.geom.Bbox;
 import org.gislogic.common.utils.geom.GeometryValidator;
 import org.gislogic.mvt.vector_tile.VectorTile;
+import org.gislogic.mvt.vectortile.enums.Command;
 import org.gislogic.mvt.vectortile.pojo.MapboxVectorTileFeature;
 import org.locationtech.jts.algorithm.Orientation;
 import org.locationtech.jts.geom.*;
