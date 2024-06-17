@@ -6,6 +6,7 @@ import org.geotools.api.feature.type.AttributeDescriptor;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
 import org.gislogic.common.utils.converter.DataFormatConverter;
+import org.gislogic.mvt.vectortile.core.HttpUtil;
 import org.gislogic.mvt.vectortile.core.MapboxVectorTileBuilder;
 import org.gislogic.mvt.vectortile.core.MapboxVectorTileLayer;
 import org.gislogic.mvt.vectortile.pojo.CustomFeature;
@@ -16,8 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.List;
 
@@ -31,7 +30,7 @@ public class MapboxVectorTileController {
     private static final String vtContentType = "application/octet-stream"; // 二进制数据流的MIME类型
 
     @RequestMapping("/{z}/{x}/{y}")
-    public void getMapboxVectorTile(@PathVariable byte z, @PathVariable int x, @PathVariable int y, HttpServletResponse response) {
+    public static void getMapboxVectorTile(@PathVariable byte z, @PathVariable int x, @PathVariable int y, HttpServletResponse response) {
         MapboxVectorTileBuilder mapboxVectorTileBuilder = new MapboxVectorTileBuilder(z, x, y);   // 构造 MapboxVectorTileBuilder
         MapboxVectorTileLayer layer = mapboxVectorTileBuilder.getOrCreateLayer("省区域");    // 创建图层
         SimpleFeatureCollection featureCollection = DataFormatConverter.convertGeoJSON2SimpleFeatureCollection("C:\\Users\\13522\\IdeaProjects\\map-services\\mvt\\src\\main\\resources\\china.json");
@@ -56,26 +55,7 @@ public class MapboxVectorTileController {
         }
         iterator.close();
 
-        exportByte(mapboxVectorTileBuilder.toBytes(), vtContentType, response);
-    }
-
-    /**
-     * 将 bytes 写入 HttpServletResponse
-     *
-     * @param bytes       编码后的mvt
-     * @param contentType 响应的内容类型
-     * @param response    HTTP 响应
-     */
-    private void exportByte(byte[] bytes, String contentType, HttpServletResponse response) {
-        response.setContentType(contentType);
-        try (OutputStream os = response.getOutputStream()) {
-            os.write(bytes);
-            os.flush();
-        } catch (org.apache.catalina.connector.ClientAbortException e) {
-            //地图移动时客户端主动取消， 产生异常"你的主机中的软件中止了一个已建立的连接"，无需处理
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        HttpUtil.exportByte(mapboxVectorTileBuilder.toBytes(), vtContentType, response);
     }
 
 

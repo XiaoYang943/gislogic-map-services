@@ -11,8 +11,6 @@ import java.util.List;
  * Benchmark                 Mode  Cnt          Score           Error  Units
  * TileClipJmhTest.jts       avgt    5  132439738.660 ± 133440464.161  ns/op
  * TileClipJmhTest.tileClip  avgt    5     260511.811 ±     49188.573  ns/op
- *
- * @author liuyu
  */
 public class TileClip {
     private final GeometryFactory gf;

@@ -17,9 +17,6 @@ import java.util.Map;
 
 /**
  * mvt瓦片构造器
- *
- * @author liuyu
- * @date 2022/4/24
  */
 public class MapboxVectorTileBuilder {
     protected final int extent;
