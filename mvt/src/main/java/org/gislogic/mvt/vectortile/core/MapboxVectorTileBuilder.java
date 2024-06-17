@@ -1,9 +1,9 @@
 package org.gislogic.mvt.vectortile.core;
 
 import org.gislogic.common.utils.converter.MapboxVectorTileConvertor;
-import org.gislogic.common.utils.converter.Tile2Wgs84;
 import org.gislogic.common.utils.geom.Bbox;
 import org.gislogic.common.utils.geom.GeometryValidator;
+import org.gislogic.common.utils.geom.TileBuilder;
 import org.gislogic.mvt.vector_tile.VectorTile;
 import org.gislogic.mvt.vectortile.enums.Command;
 import org.gislogic.mvt.vectortile.pojo.MapboxVectorTileFeature;
@@ -35,23 +35,16 @@ public class MapboxVectorTileBuilder {
         this(zoom, tileX, tileY, 4096, 8);
     }
 
-
     /**
-     * Create with the given extent value.
-     * <p>
-     * The extent value control how detailed the coordinates are encoded in the
-     * vector tile. 4096 is a good default, 256 can be used to reduce density.
-     * <p>
-     * The clip buffer value control how large the clipping area is outside of the
-     * tile for geometries. 0 means that the clipping is done at the tile border. 8
-     * is a good default.
-     *
-     * @param extent     瓦片范围(单位：像素、默认：4096)
-     * @param clipBuffer 裁剪几何的缓冲区大小(单位：像素、默认：8)
+     * @param zoom       瓦片缩放层级
+     * @param tileX      瓦片行号
+     * @param tileY      瓦片列号
+     * @param extent     瓦片范围，值越大，表示的地理区域范围更广，客户端需要请求的瓦片数量越少，但分辨率和精度相对较低(单位：像素、默认：4096)
+     * @param clipBuffer 瓦片裁剪几何时，瓦片缓冲区大小，即扩展瓦片大小多少像素(单位：像素、默认：8)
      */
     public MapboxVectorTileBuilder(byte zoom, int tileX, int tileY, int extent, int clipBuffer) {
         this.extent = extent;
-        tileBBox = createTileBbox(zoom, tileX, tileY, extent, clipBuffer);
+        tileBBox = TileBuilder.createTileBbox(zoom, tileX, tileY, extent, clipBuffer);
         tileClip = new TileClip(tileBBox.xmin, tileBBox.ymin, tileBBox.xmax, tileBBox.ymax, geometryFactory);
         mvtCoordinateConvertor = new MapboxVectorTileConvertor(zoom, tileX, tileY);
     }
@@ -74,26 +67,6 @@ public class MapboxVectorTileBuilder {
             return layer;
         }
         return createLayer(layerName);
-    }
-
-    private static Bbox createTileBbox(byte zoom, int tileX, int tileY, int extent, int clipBuffer) {
-        //瓦片左上角坐标
-        double x0 = Tile2Wgs84.tileX2lon1(tileX, zoom, 0);
-        double y0 = Tile2Wgs84.tileY2lat1(tileY, zoom, 0);
-        //瓦片右下角坐标
-        double x1 = Tile2Wgs84.tileX2lon1(tileX, zoom, extent);
-        double y1 = Tile2Wgs84.tileY2lat1(tileY, zoom, extent);
-        //clipBuffer后的坐标
-        double dx = (x1 - x0) / extent; // 每像素多少经度
-        double clipBufferX = dx * clipBuffer;
-        x0 = x0 - clipBufferX;
-        x1 = x1 + clipBufferX;
-
-        double dy = (y0 - y1) / extent; // 每像素多少纬度
-        double clipBufferY = dy * clipBuffer;
-        y0 = y0 + clipBufferY;
-        y1 = y1 - clipBufferY;
-        return new Bbox(x0, y1, x1, y0);
     }
 
 

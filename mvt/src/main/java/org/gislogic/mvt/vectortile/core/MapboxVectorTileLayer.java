@@ -23,14 +23,14 @@ public final class MapboxVectorTileLayer {
     /**
      * 给图层添加Feature
      *
-     * @param customFeature                   自定义要素，包含properties和geometry
-     * @param simplificationDistanceTolerance DP简化阈值
-     * @param curZ                            当前zoom
-     * @param minZ                            最小zoom
+     * @param customFeature     自定义要素，包含properties和geometry
+     * @param distanceTolerance DP简化阈值
+     * @param curZ              当前zoom
+     * @param minZ              最小zoom
      */
-    public void addFeature(CustomFeature customFeature, Double simplificationDistanceTolerance, byte curZ, byte minZ) {
+    public void addFeature(CustomFeature customFeature, Double distanceTolerance, byte curZ, byte minZ) {
         // 先简化再裁剪比先裁剪再简化效率要高
-        simplifyGeometry(customFeature, simplificationDistanceTolerance, curZ, minZ);
+        simplifyGeometry(customFeature, distanceTolerance, curZ, minZ);
         addMapboxVectorTileFeature2List(customFeature.getProperties(), getIntersectionOfTileAndFeature(customFeature.getGeometry()));
     }
 
@@ -46,12 +46,12 @@ public final class MapboxVectorTileLayer {
     /**
      * 简化几何
      *
-     * @param customFeature                   自定义要素，包含properties和geometry
-     * @param simplificationDistanceTolerance DP简化阈值
-     * @param curZ                            当前zoom
-     * @param minZ                            最小zoom
+     * @param customFeature     自定义要素，包含properties和geometry
+     * @param distanceTolerance 简化阈值
+     * @param curZ              当前zoom
+     * @param minZ              最小zoom
      */
-    private void simplifyGeometry(CustomFeature customFeature, Double simplificationDistanceTolerance, byte curZ, byte minZ) {
+    private void simplifyGeometry(CustomFeature customFeature, Double distanceTolerance, byte curZ, byte minZ) {
         Geometry geometry = customFeature.getGeometry();
         /**
          * Geometry类型：
@@ -60,20 +60,20 @@ public final class MapboxVectorTileLayer {
          * "Point" 不简化
          * "MultiPoint"、"LinearRing"、"GeometryCollection"   使用 TopologyPreservingSimplifier 简化
          */
-        if (simplificationDistanceTolerance > 0.0 && !(geometry instanceof Point)) {
+        if (distanceTolerance > 0.0 && !(geometry instanceof Point)) {
             if (curZ < minZ) {  // 当前瓦片的 zoom 小于最小 zoom 时才会简化
                 if (geometry instanceof LineString || geometry instanceof MultiLineString) {
-                    geometry = DouglasPeuckerSimplifier.simplify(geometry, simplificationDistanceTolerance);
+                    geometry = DouglasPeuckerSimplifier.simplify(geometry, distanceTolerance);
                 } else if (geometry instanceof Polygon || geometry instanceof MultiPolygon) {
-                    Geometry simplified = DouglasPeuckerSimplifier.simplify(geometry, simplificationDistanceTolerance);
+                    Geometry simplified = DouglasPeuckerSimplifier.simplify(geometry, distanceTolerance);
                     // extra check to prevent polygon converted to line
                     if (simplified instanceof Polygon || simplified instanceof MultiPolygon) {
                         geometry = simplified;
                     } else {
-                        geometry = TopologyPreservingSimplifier.simplify(geometry, simplificationDistanceTolerance);
+                        geometry = TopologyPreservingSimplifier.simplify(geometry, distanceTolerance);
                     }
                 } else {
-                    geometry = TopologyPreservingSimplifier.simplify(geometry, simplificationDistanceTolerance);
+                    geometry = TopologyPreservingSimplifier.simplify(geometry, distanceTolerance);
                 }
                 customFeature.setGeometry(geometry);
             }
