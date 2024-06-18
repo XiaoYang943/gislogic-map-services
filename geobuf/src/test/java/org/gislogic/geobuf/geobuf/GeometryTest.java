@@ -12,6 +12,7 @@ import org.locationtech.jts.geom.GeometryFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class GeometryTest extends TestCase {
@@ -141,6 +142,9 @@ public class GeometryTest extends TestCase {
     }
 
     public void mainFunction(String geojson) throws Exception {
+        int sizeInBytes = geojson.getBytes(StandardCharsets.UTF_8).length;
+        System.out.println("压缩前GeoJSON字节大小：" + sizeInBytes);
+
         FeatureJSON featureJSON = new FeatureJSON();
         SimpleFeature simpleFeature = featureJSON.readFeature(geojson);
 
@@ -151,7 +155,7 @@ public class GeometryTest extends TestCase {
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         GeobufEncoder encoder = new GeobufEncoder(output, 9);
         encoder.writeFeatureCollection(List.of(geobufFeature));
-
+        System.out.println("压缩后GeoBuf字节大小：" + output.size());
         /**
          Decode geobuf
          */
@@ -162,5 +166,6 @@ public class GeometryTest extends TestCase {
         String geoWkt = geometry.toText();
 
         System.out.println(geoWkt);
+        System.out.println();
     }
 }
