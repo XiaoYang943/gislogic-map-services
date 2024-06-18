@@ -68,30 +68,24 @@ public class Bbox {
     }
 
     public boolean envIntersects(Geometry geometry) {
-        Bbox bbox = new Bbox(geometry);
-        return intersects(bbox.xmin, bbox.ymin, bbox.xmax, bbox.ymax);
+        Bbox geometryBBox = new Bbox(geometry);
+        return intersects(geometryBBox.xmin, geometryBBox.ymin, geometryBBox.xmax, geometryBBox.ymax);
     }
 
     /**
-     * 判断bbox是否与范围相交
-     *
-     * @param xmin xmin
-     * @param ymin ymin
-     * @param xmax xmax
-     * @param ymax ymax
-     * @return 是否相交
+     * 判断瓦片BBox是否与geometry的BBox相交
      */
-    public boolean intersects(double xmin, double ymin, double xmax, double ymax) {
-        if (this.xmin > xmax) {
+    public boolean intersects(double geoBBoxMinX, double geoBBoxMinY, double geoBBoxMaxX, double geoBBoxMaxY) {
+        if (this.xmin > geoBBoxMaxX) {
             return false;
         }
-        if (this.xmax < xmin) {
+        if (this.xmax < geoBBoxMinX) {
             return false;
         }
-        if (this.ymin > ymax) {
+        if (this.ymin > geoBBoxMaxY) {
             return false;
         }
-        return !(this.ymax < ymin);
+        return !(this.ymax < geoBBoxMinY);
     }
 }
 

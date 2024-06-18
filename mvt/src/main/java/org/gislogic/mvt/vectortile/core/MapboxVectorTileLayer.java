@@ -166,12 +166,7 @@ public final class MapboxVectorTileLayer {
      * @return
      */
     private Geometry getIntersectionOfTileAndFeature(Geometry geometry) {
-        try {
-            return mapboxVectorTileBuilder.tileClip.intersection(geometry);
-        } catch (TopologyException e) {
-            geometry = geometry.buffer(0);
-            return mapboxVectorTileBuilder.tileClip.intersection(geometry);
-        }
+        return mapboxVectorTileBuilder.tileClip.intersection(geometry);
     }
 
 }

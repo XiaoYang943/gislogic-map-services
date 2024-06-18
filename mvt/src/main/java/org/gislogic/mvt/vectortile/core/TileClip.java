@@ -15,11 +15,12 @@ import java.util.List;
 public class TileClip {
     private final GeometryFactory gf;
 
-    private final Geometry clipGeometry;
+    private final Geometry tilePolygon;
     private final double xmin;
     private final double ymin;
     private final double xmax;
     private final double ymax;
+
 
     public TileClip(double xmin, double ymin, double xmax, double ymax, GeometryFactory gf) {
         this.gf = gf;
@@ -34,7 +35,7 @@ public class TileClip {
                 new Coordinate(xmin, ymax),
                 new Coordinate(xmin, ymin)
         };
-        clipGeometry = gf.createPolygon(coords);
+        tilePolygon = gf.createPolygon(coords);
     }
 
     /**
@@ -71,7 +72,7 @@ public class TileClip {
             return gf.createMultiLineString(lines);
         }
 
-        return clipGeometry.intersection(geometry);
+        return tilePolygon.intersection(geometry);
     }
 
 
@@ -190,8 +191,8 @@ public class TileClip {
      * @param coord
      */
     private void lineIn2Out(IntersectionLineStringCtx ctx, Coordinate coord, double x, double y) {
-        Coordinate intersection = getLineInOutIntersection(ctx.beforeCoord.x, ctx.beforeCoord.y, x, y);
-        ctx.coordinates.add(new IndexedCoordinate(Indexed.end, intersection));
+        Coordinate intersectionCoords = getLineInOutIntersection(ctx.beforeCoord.x, ctx.beforeCoord.y, x, y);
+        ctx.coordinates.add(new IndexedCoordinate(Indexed.end, intersectionCoords));
     }
 
     /**
@@ -201,8 +202,8 @@ public class TileClip {
      * @param coord
      */
     private void lineOut2In(IntersectionLineStringCtx ctx, Coordinate coord, double x, double y) {
-        Coordinate intersection = getLineInOutIntersection(x, y, ctx.beforeCoord.x, ctx.beforeCoord.y);
-        ctx.coordinates.add(new IndexedCoordinate(Indexed.start, intersection));
+        Coordinate intersectionCoords = getLineInOutIntersection(x, y, ctx.beforeCoord.x, ctx.beforeCoord.y);
+        ctx.coordinates.add(new IndexedCoordinate(Indexed.start, intersectionCoords));
         ctx.coordinates.add(new IndexedCoordinate(Indexed.middle, coord));
     }
 

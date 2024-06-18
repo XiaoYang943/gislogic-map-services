@@ -30,9 +30,10 @@ public class MapboxVectorTileController {
 
         MapboxVectorTileBuilder mapboxVectorTileBuilder = new MapboxVectorTileBuilder(z, x, y);   // 构造 MapboxVectorTileBuilder
 
-        MapboxVectorTileLayer layer = mapboxVectorTileBuilder.getOrCreateLayer("省区域");    // 创建图层
+        MapboxVectorTileLayer layer = mapboxVectorTileBuilder.getOrCreateLayer("省区域");    // 创建图层,图层名称需要和前端mapbox的图层的source-layer属性保持一致
 
-        SimpleFeatureCollection featureCollection = DataFormatConverter.convertGeoJSON2SimpleFeatureCollection("C:\\Users\\heyiyang\\IdeaProjects\\gislogic-map-services\\mvt\\src\\main\\resources\\china.json");
+//        SimpleFeatureCollection featureCollection = DataFormatConverter.convertGeoJSON2SimpleFeatureCollection("C:\\Users\\heyiyang\\IdeaProjects\\gislogic-map-services\\mvt\\src\\main\\resources\\china.json");
+        SimpleFeatureCollection featureCollection = DataFormatConverter.convertGeoJSON2SimpleFeatureCollection("C:\\Users\\heyiyang\\数据\\china.geojson");
 
         mapboxVectorTileLayerService.build(mapboxVectorTileBuilder, layer, featureCollection, z);
 
