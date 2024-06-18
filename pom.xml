@@ -15,6 +15,7 @@
         <module>geoserver</module>
         <module>mvt</module>
         <module>demo</module>
+        <module>geobuf</module>
     </modules>
     <properties>
         <java.version>11</java.version>
