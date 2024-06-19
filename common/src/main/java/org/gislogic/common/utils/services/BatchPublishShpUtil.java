@@ -20,16 +20,15 @@ public class BatchPublishShpUtil {
         GeoServerRESTPublisher publisher = manager.getPublisher();
         GeoServerRESTReader reader = manager.getReader();
         GSResourceEncoder.ProjectionPolicy projectionPolicy = GSResourceEncoder.ProjectionPolicy.FORCE_DECLARED;    // 设置投影策略
-
         boolean existsStore = reader.existsDatastore(workSpace, layerName);
         if (existsStore) {
             boolean removeDatastore = publisher.removeDatastore(workSpace, layerName);  // 删除数据源    // client中，删除数据源，图层也会被删除，但是样式不会被删除
             System.out.println("删除数据源:" + workSpace + "_" + layerName + ":" + removeDatastore);
         }
 
-        boolean existsStyle = reader.existsStyle(layerName);    // 样式貌似是公用的，不存在工作区一说
+        boolean existsStyle = reader.existsStyle(workSpace, layerName);
         if (existsStyle) {
-            boolean updateStyleInWorkspace = publisher.removeStyle(layerName);
+            boolean updateStyleInWorkspace = publisher.removeStyleInWorkspace(workSpace, layerName);
             System.out.println("删除样式:" + workSpace + "_" + layerName + ":" + updateStyleInWorkspace);
         }
 
@@ -37,7 +36,7 @@ public class BatchPublishShpUtil {
             boolean publishShp = publisher.publishShp(workSpace, layerName, layerName, new File(shpPath), srs, String.valueOf(projectionPolicy));
             System.out.println("发布Shp:" + workSpace + "_" + layerName + ":" + publishShp);
 
-            boolean publishStyle = publisher.publishStyle(new File(shpStylePath), layerName);
+            boolean publishStyle = publisher.publishStyleInWorkspace(workSpace, new File(shpStylePath), layerName);
             System.out.println("发布样式:" + workSpace + "_" + layerName + ":" + publishStyle);
 
             GSLayerEncoder layerEncoder = new GSLayerEncoder();

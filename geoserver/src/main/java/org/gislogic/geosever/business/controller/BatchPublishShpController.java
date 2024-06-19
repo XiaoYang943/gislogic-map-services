@@ -18,8 +18,12 @@ public class BatchPublishShpController {
      */
     @PostMapping("/shp")
     public void publishShp() {
-        String mapXMLFolder = "C:\\Users\\heyiyang\\文档\\数据\\自动化数据\\20231208\\sys\\sys";
-        String outputFolder = "C:\\Users\\heyiyang\\文档\\数据\\自动化数据\\test-java2";
-        batchPublishAirnetDataService.publishAirnetXml(mapXMLFolder, outputFolder, false);
+//        String mapXMLFolder = "C:\\Users\\heyiyang\\文档\\数据\\自动化数据\\20231208\\sys\\sys";
+//        String outputFolder = "C:\\Users\\heyiyang\\文档\\数据\\自动化数据\\test-java2";
+//        batchPublishAirnetDataService.publishAirnetXml(mapXMLFolder, outputFolder, false, "gis");
+
+        String mapXMLFolder = "C:\\Users\\heyiyang\\文档\\数据\\自动化数据\\自动化地图\\区域底图";
+        String outputFolder = "C:\\Users\\heyiyang\\文档\\数据\\自动化数据\\test-java3";
+        batchPublishAirnetDataService.publishAirnetXml(mapXMLFolder, outputFolder, false, "acc");
     }
 }

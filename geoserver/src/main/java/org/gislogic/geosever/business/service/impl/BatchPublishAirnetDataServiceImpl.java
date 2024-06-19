@@ -3,6 +3,7 @@ package org.gislogic.geosever.business.service.impl;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.file.PathUtil;
 import it.geosolutions.geoserver.rest.GeoServerRESTManager;
+import it.geosolutions.geoserver.rest.GeoServerRESTPublisher;
 import org.gislogic.common.utils.converter.DataFormatConverter;
 import org.gislogic.common.utils.file.FileUtils;
 import org.gislogic.common.utils.services.BatchPublishShpUtil;
@@ -25,7 +26,7 @@ public class BatchPublishAirnetDataServiceImpl implements BatchPublishAirnetData
     GeoServerConfig geoServerConfig;
 
     @Override
-    public void publishAirnetXml(String mapXMLFolder, String outputFolder, Boolean delete) {
+    public void publishAirnetXml(String mapXMLFolder, String outputFolder, Boolean delete, String workSpace) {
         String mapJSONFolder = outputFolder + "\\map-json";
         String geojsonFolder = outputFolder + "\\json-geojson";
         String shpFolder = outputFolder + "\\shp";
@@ -56,7 +57,14 @@ public class BatchPublishAirnetDataServiceImpl implements BatchPublishAirnetData
 
         try {
             GeoServerRESTManager manager = new GeoServerRESTManager(new URL(geoServerConfig.getUrl()), geoServerConfig.getUsername(), geoServerConfig.getPassword());    // geoserver manager 对象
-            BatchPublishShpUtil.executePublish(manager, resultFolder, CommonEnum.WORKSPACE, CommonEnum.SRID);  // 执行发布地图服务 //  注意：记得把county的zip(注意'name'字段还是'地名')和xml加入 resultFolder
+            GeoServerRESTPublisher publisher = manager.getPublisher();
+            boolean createWorkSpace = publisher.createWorkspace(workSpace);
+            if (createWorkSpace) {
+                System.out.println("创建工作区:" + workSpace + ":" + createWorkSpace + ",新增工作区");
+            } else {
+                System.out.println("创建工作区:" + workSpace + ":" + createWorkSpace + ",在已有的工作区内更新数据");
+            }
+            BatchPublishShpUtil.executePublish(manager, resultFolder, workSpace, CommonEnum.SRID);  // 执行发布地图服务 //  注意：记得把county的zip(注意'name'字段还是'地名')和xml加入 resultFolder
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         }

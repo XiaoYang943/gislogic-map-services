@@ -1,5 +1,5 @@
 package org.gislogic.geosever.business.service;
 
 public interface BatchPublishAirnetDataService {
-    void publishAirnetXml(String mapXMLFolder, String outputFolder, Boolean delete);
+    void publishAirnetXml(String mapXMLFolder, String outputFolder, Boolean delete, String workspace);
 }

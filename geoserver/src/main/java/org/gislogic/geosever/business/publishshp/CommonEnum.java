@@ -8,7 +8,6 @@ package org.gislogic.geosever.business.publishshp;
  **/
 public class CommonEnum {
     public static final String SRID = "EPSG:4326";   // 坐标系
-    public static final String WORKSPACE = "gis";   // geoserver工作空间
     public static final String DEFAULT_TYPE_POLYGON = "polygon";    // 面
     public static final String DEFAULT_TYPE_POLYLINE = "polyline";  // 线
     public static final String DEFAULT_TYPE_POINT = "point";    // 点
