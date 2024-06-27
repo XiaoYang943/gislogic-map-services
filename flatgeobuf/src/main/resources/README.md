@@ -21,3 +21,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ## source
 
 - [source-code](https://github.com/flatgeobuf/flatgeobuf)
+
+## doc
+
+- [java-doc](https://javadoc.io/doc/org.wololo/flatgeobuf/latest/index.html)
