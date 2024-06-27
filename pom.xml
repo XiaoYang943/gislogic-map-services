@@ -16,6 +16,7 @@
         <module>mvt</module>
         <module>demo</module>
         <module>geobuf</module>
+        <module>flatgeobuf</module>
     </modules>
     <properties>
         <java.version>11</java.version>
