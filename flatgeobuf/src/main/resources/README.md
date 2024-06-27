@@ -25,3 +25,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ## doc
 
 - [java-doc](https://javadoc.io/doc/org.wololo/flatgeobuf/latest/index.html)
+
+## reference
+
+- [convert GeoJSON to FlatGeoBuf](https://quickmaptools.com/geojson-to-flatgeobuf)
+- [foursquare](https://docs.foursquare.com/analytics-products/docs/data-formats-flatgeobuf)
