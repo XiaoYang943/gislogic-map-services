@@ -30,3 +30,4 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 - [convert GeoJSON to FlatGeoBuf](https://quickmaptools.com/geojson-to-flatgeobuf)
 - [foursquare](https://docs.foursquare.com/analytics-products/docs/data-formats-flatgeobuf)
+- [FGB数据加载策略](https://iclient.supermap.io/web/technical-topics/zh/flatgeobuf-text.html#fgb%E6%95%B0%E6%8D%AE%E5%8A%A0%E8%BD%BD%E7%AD%96%E7%95%A5)
